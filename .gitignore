@@ -8,3 +8,5 @@ server/uploads/*
 Thumbs.db
 .claude/
 .claude-plugin/
+CLAUDE.md
+.vite/
