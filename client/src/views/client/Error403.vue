@@ -19,7 +19,7 @@ const router = useRouter()
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: #f5f0eb;
+  background: #faf8f5;
 }
 
 .error-card {
@@ -27,20 +27,34 @@ const router = useRouter()
   padding: 60px 40px;
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0ece5;
+  box-shadow: 0 4px 24px rgba(44, 36, 22, 0.06);
 }
 
 .error-code {
-  font-size: 96px;
+  font-size: 72px;
   font-weight: 700;
-  color: #e6a23c;
+  color: #8c8170;
   line-height: 1.2;
   margin-bottom: 16px;
+  letter-spacing: -0.02em;
 }
 
 .error-desc {
   font-size: 16px;
-  color: #909399;
+  color: #b8af9e;
   margin: 0 0 32px 0;
+  letter-spacing: 0.02em;
+}
+
+:deep(.el-button--primary) {
+  border-radius: 8px;
+  background: #8B6914;
+  border-color: #8B6914;
+
+  &:hover {
+    background: #a68b3c;
+    border-color: #a68b3c;
+  }
 }
 </style>

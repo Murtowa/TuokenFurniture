@@ -1,69 +1,75 @@
 <template>
   <div class="product-form">
-    <el-form ref="formRef" :model="form" :rules="rules" label-width="100px" size="default">
-      <el-form-item label="商品名称" prop="name">
-        <el-input v-model="form.name" placeholder="请输入商品名称" />
-      </el-form-item>
+    <div class="form-card">
+      <el-form ref="formRef" :model="form" :rules="rules" label-width="100px" size="default">
+        <el-form-item label="商品名称" prop="name">
+          <el-input v-model="form.name" placeholder="请输入商品名称" />
+        </el-form-item>
 
-      <el-form-item label="分类" prop="category_id">
-        <el-select v-model="form.category_id" placeholder="请选择分类" style="width:100%;">
-          <el-option v-for="c in categories" :key="c.id" :label="c.name" :value="c.id" />
-        </el-select>
-      </el-form-item>
+        <el-form-item label="分类" prop="category_id">
+          <el-select v-model="form.category_id" placeholder="请选择分类" style="width:100%;">
+            <el-option v-for="c in categories" :key="c.id" :label="c.name" :value="c.id" />
+          </el-select>
+        </el-form-item>
 
-      <el-form-item label="价格" prop="price">
-        <el-input-number v-model="form.price" :min="0" :precision="2" :step="10" style="width:200px;" />
-      </el-form-item>
+        <el-form-item label="价格" prop="price">
+          <el-input-number v-model="form.price" :min="0" :precision="2" :step="10" class="number-input" />
+        </el-form-item>
 
-      <el-form-item label="库存" prop="stock">
-        <el-input-number v-model="form.stock" :min="0" :step="1" style="width:200px;" />
-      </el-form-item>
+        <el-form-item label="库存" prop="stock">
+          <el-input-number v-model="form.stock" :min="0" :step="1" class="number-input" />
+        </el-form-item>
 
-      <el-form-item label="描述" prop="description">
-        <el-input v-model="form.description" type="textarea" :rows="4" placeholder="请输入商品描述" />
-      </el-form-item>
+        <el-form-item label="描述" prop="description">
+          <el-input v-model="form.description" type="textarea" :rows="4" placeholder="请输入商品描述" />
+        </el-form-item>
 
-      <el-form-item label="主图">
-        <el-upload
-          class="main-upload"
-          :auto-upload="false"
-          :show-file-list="false"
-          :on-change="handleMainImageChange"
-          accept="image/*"
-        >
-          <img v-if="form.main_image" :src="form.main_image" class="main-image-preview" />
-          <el-icon v-else class="main-upload-icon"><Plus /></el-icon>
-        </el-upload>
-      </el-form-item>
+        <el-form-item label="主图">
+          <el-upload
+            class="main-upload"
+            :auto-upload="false"
+            :show-file-list="false"
+            :on-change="handleMainImageChange"
+            accept="image/*"
+          >
+            <img v-if="form.main_image" :src="form.main_image" class="main-image-preview" />
+            <div v-else class="main-upload-placeholder">
+              <el-icon class="upload-icon"><Plus /></el-icon>
+            </div>
+          </el-upload>
+        </el-form-item>
 
-      <el-form-item label="多图">
-        <el-upload
-          v-model:file-list="imageFiles"
-          :auto-upload="false"
-          list-type="picture-card"
-          :limit="5"
-          accept="image/*"
-          :on-change="handleImageChange"
-          :on-exceed="handleExceed"
-          :on-preview="handlePreview"
-          :on-remove="handleRemove"
-        >
-          <el-icon><Plus /></el-icon>
-        </el-upload>
-        <el-dialog v-model="previewVisible" title="图片预览" width="600px">
-          <img :src="previewUrl" style="width:100%;" />
-        </el-dialog>
-      </el-form-item>
+        <el-form-item label="多图">
+          <el-upload
+            v-model:file-list="imageFiles"
+            :auto-upload="false"
+            list-type="picture-card"
+            :limit="5"
+            accept="image/*"
+            :on-change="handleImageChange"
+            :on-exceed="handleExceed"
+            :on-preview="handlePreview"
+            :on-remove="handleRemove"
+          >
+            <el-icon><Plus /></el-icon>
+          </el-upload>
+          <el-dialog v-model="previewVisible" title="图片预览" width="600px">
+            <img :src="previewUrl" style="width:100%;" />
+          </el-dialog>
+        </el-form-item>
 
-      <el-form-item label="上架状态">
-        <el-switch v-model="form.status" :active-value="1" :inactive-value="0" />
-      </el-form-item>
+        <el-form-item label="上架状态">
+          <el-switch v-model="form.status" :active-value="1" :inactive-value="0" class="warm-switch" />
+        </el-form-item>
 
-      <el-form-item>
-        <el-button type="primary" :loading="submitting" @click="handleSave">保存</el-button>
-        <el-button @click="$router.back()">取消</el-button>
-      </el-form-item>
-    </el-form>
+        <el-form-item>
+          <div class="form-actions">
+            <el-button type="primary" :loading="submitting" class="save-btn" @click="handleSave">保存</el-button>
+            <el-button class="cancel-btn" @click="$router.back()">取消</el-button>
+          </div>
+        </el-form-item>
+      </el-form>
+    </div>
   </div>
 </template>
 
@@ -195,36 +201,162 @@ onMounted(async () => {
 
 <style lang="scss" scoped>
 .product-form {
-  max-width: 720px;
+  font-family: system-ui, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  max-width: 800px;
+}
+
+.form-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 32px;
+  border: 1px solid #f0ece5;
+  box-shadow: 0 1px 4px rgba(44, 36, 22, 0.04);
+}
+
+.number-input {
+  width: 200px;
 }
 
 .main-upload {
-  .main-upload-icon {
-    font-size: 28px;
-    color: #c0c4cc;
-  }
-
-  .main-image-preview {
-    width: 120px;
-    height: 120px;
-    object-fit: cover;
-    border-radius: 6px;
-    border: 1px dashed #dcdfe6;
-  }
-
-  .el-upload {
-    border: 1px dashed #dcdfe6;
-    border-radius: 6px;
+  :deep(.el-upload) {
+    border: 1px dashed #e8e3dc;
+    border-radius: 8px;
     cursor: pointer;
     width: 120px;
     height: 120px;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: border-color 0.2s ease;
 
     &:hover {
-      border-color: #409eff;
+      border-color: #8B6914;
     }
   }
+}
+
+.main-upload-placeholder {
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .upload-icon {
+    font-size: 28px;
+    color: #b8af9e;
+  }
+}
+
+.main-image-preview {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  width: 100%;
+}
+
+.save-btn {
+  height: 38px;
+  padding: 0 28px;
+}
+
+.cancel-btn {
+  height: 38px;
+  padding: 0 20px;
+}
+
+/* 表单元素覆盖 */
+:deep(.el-form-item__label) {
+  font-size: 14px;
+  font-weight: 500;
+  color: #2c2416;
+  padding-bottom: 8px;
+}
+
+:deep(.el-input__wrapper) {
+  border-radius: 8px;
+  border-color: #e8e3dc;
+  box-shadow: 0 0 0 1px #e8e3dc inset;
+
+  &.is-focus {
+    border-color: #8B6914;
+    box-shadow: 0 0 0 1px #8B6914 inset;
+  }
+}
+
+:deep(.el-textarea__inner) {
+  border-radius: 8px;
+  border-color: #e8e3dc;
+
+  &:focus {
+    border-color: #8B6914;
+  }
+}
+
+:deep(.el-select) {
+  .el-input__wrapper {
+    border-radius: 8px;
+  }
+}
+
+:deep(.el-input-number) {
+  .el-input__wrapper {
+    border-radius: 8px;
+    border-color: #e8e3dc;
+    box-shadow: 0 0 0 1px #e8e3dc inset;
+  }
+}
+
+/* 主按钮 */
+:deep(.el-button--primary) {
+  --el-button-bg-color: #8B6914;
+  --el-button-border-color: #8B6914;
+  --el-button-hover-bg-color: #a68b3c;
+  --el-button-hover-border-color: #a68b3c;
+  --el-button-active-bg-color: #7a5b11;
+  --el-button-active-border-color: #7a5b11;
+  border-radius: 8px;
+}
+
+/* 默认按钮 */
+:deep(.el-button:not(.el-button--primary)) {
+  --el-button-border-color: #e8e3dc;
+  --el-button-text-color: #8c8170;
+  --el-button-hover-border-color: #b8af9e;
+  --el-button-hover-text-color: #2c2416;
+  --el-button-bg-color: #fff;
+  border-radius: 8px;
+}
+
+/* 上传组件 */
+:deep(.el-upload-list--picture-card) {
+  .el-upload-list__item {
+    border-radius: 8px;
+    border: 1px solid #e8e3dc;
+  }
+}
+
+:deep(.el-upload--picture-card) {
+  border-radius: 8px;
+  border: 1px dashed #e8e3dc;
+  background: transparent;
+
+  &:hover {
+    border-color: #8B6914;
+    color: #8B6914;
+  }
+}
+
+/* 开关 */
+:deep(.warm-switch) {
+  --el-switch-on-color: #5b8c5a;
+  --el-switch-off-color: #b8af9e;
 }
 </style>

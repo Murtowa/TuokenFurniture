@@ -26,7 +26,7 @@ const productModel = {
        FROM products p
        LEFT JOIN categories c ON p.category_id = c.id
        ${where} ${orderBy} LIMIT ? OFFSET ?`,
-      [...params, pageSize, offset]
+      [...params, String(pageSize), String(offset)]
     )
     const [countResult] = await pool.execute(
       `SELECT COUNT(*) as total FROM products p LEFT JOIN categories c ON p.category_id = c.id ${where}`,
@@ -91,7 +91,7 @@ const productModel = {
        FROM products p
        LEFT JOIN categories c ON p.category_id = c.id
        ${where} ORDER BY p.id DESC LIMIT ? OFFSET ?`,
-      [...params, pageSize, offset]
+      [...params, String(pageSize), String(offset)]
     )
     const [countResult] = await pool.execute(
       `SELECT COUNT(*) as total FROM products p ${where}`, params

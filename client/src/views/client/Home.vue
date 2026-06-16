@@ -2,12 +2,13 @@
   <div class="home">
     <!-- Banner Section -->
     <section class="banner-section">
-      <el-carousel height="420px" :interval="5000" arrow="hover">
+      <el-carousel height="520px" :interval="5000" arrow="hover">
         <el-carousel-item v-for="banner in banners" :key="banner.id">
           <div
             class="banner-item"
             :style="{ backgroundImage: `url(/uploads/${banner.image})` }"
           >
+            <div class="banner-overlay"></div>
             <div class="banner-content">
               <h2>{{ banner.title }}</h2>
               <p v-if="banner.subtitle">{{ banner.subtitle }}</p>
@@ -18,53 +19,57 @@
     </section>
 
     <!-- Category Section -->
-    <section class="category-section container">
-      <h2 class="section-title">商品分类</h2>
-      <div class="category-grid">
-        <div
-          v-for="cat in categories"
-          :key="cat.id"
-          class="category-item"
-          @click="goToCategory(cat.id)"
-        >
-          <div class="category-icon">
-            <img v-if="cat.image" :src="`/uploads/${cat.image}`" :alt="cat.name" />
-            <el-icon v-else :size="36"><Folder /></el-icon>
+    <section class="category-section section">
+      <div class="container">
+        <h2 class="section-title">商品分类</h2>
+        <div class="category-grid">
+          <div
+            v-for="cat in categories"
+            :key="cat.id"
+            class="category-item"
+            @click="goToCategory(cat.id)"
+          >
+            <div class="category-icon">
+              <img v-if="cat.image" :src="`/uploads/${cat.image}`" :alt="cat.name" />
+              <el-icon v-else :size="36"><Folder /></el-icon>
+            </div>
+            <span class="category-name">{{ cat.name }}</span>
           </div>
-          <span class="category-name">{{ cat.name }}</span>
         </div>
       </div>
     </section>
 
     <!-- Hot Products Section -->
-    <section class="hot-section container">
-      <div class="section-header">
-        <h2 class="section-title">热门商品</h2>
-        <el-button text type="primary" @click="$router.push('/products')">
-          查看全部 <el-icon><ArrowRight /></el-icon>
-        </el-button>
-      </div>
-      <div class="product-grid">
-        <div
-          v-for="product in hotProducts"
-          :key="product.id"
-          class="product-card"
-          @click="goToProduct(product.id)"
-        >
-          <div class="product-image">
-            <img :src="`/uploads/${product.main_image}`" :alt="product.name" />
-            <div class="product-actions">
-              <el-button
-                type="primary"
-                circle
-                :icon="ShoppingCartFull"
-                @click.stop="handleAddCart(product)"
-              />
+    <section class="hot-section section">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">热门商品</h2>
+          <el-button text type="primary" @click="$router.push('/products')">
+            查看全部 <el-icon><ArrowRight /></el-icon>
+          </el-button>
+        </div>
+        <div class="product-grid">
+          <div
+            v-for="product in hotProducts"
+            :key="product.id"
+            class="product-card"
+            @click="goToProduct(product.id)"
+          >
+            <div class="product-image">
+              <img :src="`/uploads/${product.main_image}`" :alt="product.name" />
+              <div class="product-actions">
+                <el-button
+                  type="primary"
+                  circle
+                  :icon="ShoppingCartFull"
+                  @click.stop="handleAddCart(product)"
+                />
+              </div>
             </div>
-          </div>
-          <div class="product-info">
-            <h3 class="product-name">{{ product.name }}</h3>
-            <p class="product-price">¥{{ product.price }}</p>
+            <div class="product-info">
+              <h3 class="product-name">{{ product.name }}</h3>
+              <p class="product-price">&yen;{{ product.price }}</p>
+            </div>
           </div>
         </div>
       </div>
@@ -113,9 +118,21 @@ onMounted(async () => {
 <style lang="scss" scoped>
 .home {
   .banner-section {
-    margin-bottom: 40px;
     :deep(.el-carousel__container) {
-      height: 420px;
+      height: 520px;
+    }
+    :deep(.el-carousel__arrow) {
+      background: rgba(44, 36, 22, 0.3);
+      color: #fff;
+      &:hover {
+        background: rgba(44, 36, 22, 0.6);
+      }
+    }
+    :deep(.el-carousel__indicator .el-carousel__button) {
+      background: rgba(44, 36, 22, 0.3);
+    }
+    :deep(.el-carousel__indicator.is-active .el-carousel__button) {
+      background: #8B6914;
     }
     .banner-item {
       width: 100%;
@@ -125,17 +142,27 @@ onMounted(async () => {
       display: flex;
       align-items: center;
       justify-content: center;
+      position: relative;
+      .banner-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to bottom, rgba(44, 36, 22, 0.2), rgba(44, 36, 22, 0.5));
+      }
       .banner-content {
+        position: relative;
         text-align: center;
         color: #fff;
-        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+        text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
         h2 {
-          font-size: 36px;
-          margin-bottom: 8px;
+          font-size: 48px;
+          font-weight: 700;
+          margin-bottom: 12px;
+          letter-spacing: -0.02em;
         }
         p {
-          font-size: 18px;
-          opacity: 0.9;
+          font-size: 20px;
+          opacity: 0.92;
+          letter-spacing: 0.02em;
         }
       }
     }
@@ -144,25 +171,30 @@ onMounted(async () => {
   .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 0 24px;
+  }
+
+  .section {
+    padding: 80px 0;
   }
 
   .section-title {
-    font-size: 24px;
-    font-weight: 600;
-    color: #303133;
-    margin-bottom: 24px;
+    font-size: 28px;
+    font-weight: 700;
+    color: #2c2416;
+    margin-bottom: 40px;
     position: relative;
-    padding-left: 14px;
-    &::before {
+    padding-bottom: 12px;
+    letter-spacing: -0.02em;
+    &::after {
       content: '';
       position: absolute;
       left: 0;
-      top: 4px;
-      bottom: 4px;
-      width: 4px;
-      background: #409eff;
-      border-radius: 2px;
+      bottom: 0;
+      width: 40px;
+      height: 3px;
+      background: #8B6914;
+      border-radius: 1.5px;
     }
   }
 
@@ -171,76 +203,84 @@ onMounted(async () => {
     align-items: center;
     justify-content: space-between;
     .section-title {
-      margin-bottom: 24px;
+      margin-bottom: 40px;
+    }
+    :deep(.el-button.is-text) {
+      color: #8c8170;
+      &:hover {
+        color: #8B6914;
+      }
     }
   }
 
   /* Category */
   .category-section {
-    margin-bottom: 48px;
+    background: #faf8f5;
   }
   .category-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 24px;
   }
   .category-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px 12px;
-    background: #f5f7fa;
-    border-radius: 8px;
+    padding: 28px 16px;
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #f0ece5;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.3s ease;
     &:hover {
-      background: #ecf5ff;
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(64, 158, 255, 0.15);
+      box-shadow: 0 4px 16px rgba(44, 36, 22, 0.08);
+      border-color: #e8e3dc;
     }
     .category-icon {
-      width: 64px;
-      height: 64px;
+      width: 72px;
+      height: 72px;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #fff;
+      background: #fdf6e8;
       border-radius: 50%;
-      margin-bottom: 10px;
-      color: #409eff;
+      margin-bottom: 12px;
+      color: #8B6914;
       img {
-        width: 48px;
-        height: 48px;
+        width: 52px;
+        height: 52px;
         object-fit: cover;
         border-radius: 50%;
       }
     }
     .category-name {
       font-size: 14px;
-      color: #606266;
+      color: #2c2416;
       font-weight: 500;
+      letter-spacing: 0.02em;
     }
   }
 
   /* Hot Products */
   .hot-section {
-    margin-bottom: 48px;
+    background: #fff;
   }
   .product-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+    gap: 24px;
   }
   .product-card {
     background: #fff;
-    border-radius: 8px;
+    border-radius: 12px;
     overflow: hidden;
     cursor: pointer;
-    transition: all 0.3s;
-    border: 1px solid #ebeef5;
+    transition: all 0.3s ease;
+    border: 1px solid #f0ece5;
     &:hover {
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-      transform: translateY(-4px);
+      box-shadow: 0 4px 16px rgba(44, 36, 22, 0.08);
+      transform: translateY(-2px);
       .product-actions {
         opacity: 1;
       }
@@ -250,7 +290,7 @@ onMounted(async () => {
       width: 100%;
       padding-top: 100%;
       overflow: hidden;
-      background: #f5f7fa;
+      background: #faf8f5;
       img {
         position: absolute;
         top: 0;
@@ -268,27 +308,35 @@ onMounted(async () => {
         bottom: 12px;
         right: 12px;
         opacity: 0;
-        transition: opacity 0.3s;
-        .el-button {
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        transition: opacity 0.3s ease;
+        :deep(.el-button--primary) {
+          background: #8B6914;
+          border-color: #8B6914;
+          box-shadow: 0 2px 8px rgba(44, 36, 22, 0.3);
+          &:hover {
+            background: #a68b3c;
+            border-color: #a68b3c;
+          }
         }
       }
     }
     .product-info {
-      padding: 14px;
+      padding: 24px;
       .product-name {
         font-size: 15px;
         font-weight: 500;
-        color: #303133;
+        color: #2c2416;
         margin-bottom: 8px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        letter-spacing: 0.02em;
       }
       .product-price {
         font-size: 18px;
         font-weight: 700;
-        color: #e74c3c;
+        color: #c0392b;
+        margin: 0;
       }
     }
   }

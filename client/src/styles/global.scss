@@ -1,73 +1,192 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+// ── Tuoken Furniture — Premium Design System ──
+// Design: Warm Wood + Minimalist Editorial
+// Philosophy: soft-skill (luxury) + minimalist-skill (clean)
+
+// ── Tokens ──
+$color-bg:         #faf8f5;   // warm cream
+$color-surface:     #fff;
+$color-text:        #2c2416;   // warm dark brown
+$color-text-soft:   #8c8170;   // warm taupe
+$color-text-muted:  #b8af9e;   // lighter taupe
+$color-border:      #e8e3dc;   // warm border
+$color-border-light:#f0ece5;   // light warm border
+$color-primary:     #8B6914;   // warm wood/gold
+$color-primary-light:#a68b3c;  // lighter gold
+$color-primary-bg:  #fdf6e8;   // warm gold bg
+$color-accent:      #c17817;   // amber accent
+$color-price:       #c0392b;   // deep warm red
+$color-success:     #5b8c5a;   // muted green
+$color-warning:     #c17817;
+$color-danger:      #c0392b;
+$color-info:        #8c8170;
+
+$font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+
+$radius-sm: 8px;
+$radius-md: 12px;
+$radius-lg: 16px;
+$radius-xl: 24px;
+
+$shadow-sm: 0 1px 3px rgba(44, 36, 22, 0.06);
+$shadow-md: 0 4px 16px rgba(44, 36, 22, 0.08);
+$shadow-lg: 0 8px 32px rgba(44, 36, 22, 0.1);
+$shadow-xl: 0 16px 48px rgba(44, 36, 22, 0.12);
+
+$transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+$transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+$transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+
+// ── Reset ──
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
-  color: #333;
-  background: #f5f5f5;
+  font-family: $font-family;
+  color: $color-text;
+  background: $color-bg;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
 }
 
-a {
-  text-decoration: none;
-  color: inherit;
-}
+a { text-decoration: none; color: inherit; }
 
+img { max-width: 100%; display: block; }
+
+// ── Utilities ──
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 24px;
 }
 
+// ── Section ──
+.section {
+  padding: 80px 0;
+  &-sm { padding: 48px 0; }
+  &-lg { padding: 120px 0; }
+}
+
+.section-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: $color-text;
+  margin-bottom: 40px;
+  letter-spacing: -0.02em;
+  position: relative;
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -12px;
+    width: 40px;
+    height: 3px;
+    background: $color-primary;
+    border-radius: 2px;
+  }
+}
+
+// ── Cards ──
+.card {
+  background: $color-surface;
+  border-radius: $radius-md;
+  border: 1px solid $color-border-light;
+  transition: all $transition-base;
+
+  &:hover {
+    box-shadow: $shadow-md;
+    border-color: transparent;
+  }
+}
+
+// ── Buttons Override (Element Plus) ──
+.el-button--primary {
+  --el-button-bg-color: #{$color-primary};
+  --el-button-border-color: #{$color-primary};
+  --el-button-hover-bg-color: #{$color-primary-light};
+  --el-button-hover-border-color: #{$color-primary-light};
+  --el-button-active-bg-color: #{$color-primary};
+  --el-button-active-border-color: #{$color-primary};
+}
+
+// ── Page wrapper ──
 .page-wrapper {
   min-height: calc(100vh - 200px);
-  padding: 20px 0;
 }
 
-// Layout
+// ═══════════════════════════════════════════
+//  LAYOUT: Client (frontend store)
+// ═══════════════════════════════════════════
+
 .layout-client {
-  background: #fff;
+  background: $color-bg;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
 .header {
-  background: #fff;
-  border-bottom: 1px solid #eee;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid $color-border-light;
   position: sticky;
   top: 0;
   z-index: 100;
+  transition: box-shadow $transition-base;
+
+  .header-scrolled & {
+    box-shadow: $shadow-sm;
+  }
 
   .header-inner {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 0 24px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 64px;
+    height: 68px;
   }
 
   .logo {
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 700;
-    color: #2c3e50;
+    color: $color-text;
+    letter-spacing: 0.04em;
     cursor: pointer;
+    transition: color $transition-fast;
+    &:hover { color: $color-primary; }
   }
 
   .nav-links {
     display: flex;
-    gap: 30px;
+    gap: 36px;
 
     a {
-      font-size: 15px;
-      color: #555;
-      transition: color 0.2s;
-      &.router-link-active { color: #409eff; }
-      &:hover { color: #409eff; }
+      font-size: 14px;
+      font-weight: 500;
+      color: $color-text-soft;
+      letter-spacing: 0.02em;
+      position: relative;
+      padding: 4px 0;
+      transition: color $transition-fast;
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -2px; left: 0; right: 0;
+        height: 2px;
+        background: $color-primary;
+        transform: scaleX(0);
+        transition: transform $transition-base;
+      }
+      &.router-link-active {
+        color: $color-text;
+        &::after { transform: scaleX(1); }
+      }
+      &:hover {
+        color: $color-text;
+        &::after { transform: scaleX(1); }
+      }
     }
   }
 
@@ -80,54 +199,141 @@ a {
       position: relative;
       font-size: 20px;
       cursor: pointer;
-      color: #555;
+      color: $color-text-soft;
+      transition: color $transition-fast;
+      padding: 6px;
+      border-radius: $radius-sm;
+      &:hover {
+        color: $color-primary;
+        background: $color-primary-bg;
+      }
       .cart-badge {
         position: absolute;
-        top: -8px; right: -12px;
-        background: #e74c3c;
+        top: 0; right: -2px;
+        background: $color-price;
         color: #fff;
-        font-size: 12px;
+        font-size: 11px;
+        font-weight: 600;
         border-radius: 10px;
         padding: 0 6px;
         height: 18px;
         line-height: 18px;
+        min-width: 18px;
+        text-align: center;
+      }
+    }
+  }
+
+  // Override default buttons in header
+  .el-button {
+    border-radius: $radius-sm;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    transition: all $transition-base;
+
+    &:not(.el-button--primary) {
+      color: $color-text-soft;
+      border-color: $color-border;
+      &:hover {
+        color: $color-primary;
+        border-color: $color-primary;
+        background: $color-primary-bg;
       }
     }
   }
 }
 
 .footer {
-  background: #2c3e50;
-  color: #bdc3c7;
-  padding: 30px 0;
-  text-align: center;
+  background: #1e1b16;
+  color: #a09888;
+  padding: 48px 0;
   margin-top: auto;
   font-size: 14px;
+
+  .footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .footer-brand {
+    font-weight: 700;
+    font-size: 18px;
+    color: #d4c9b8;
+    letter-spacing: 0.04em;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 28px;
+    a {
+      color: #a09888;
+      font-size: 13px;
+      transition: color $transition-fast;
+      &:hover { color: #d4c9b8; }
+    }
+  }
 }
 
-// Admin Layout
+// ═══════════════════════════════════════════
+//  LAYOUT: Admin (dashboard)
+// ═══════════════════════════════════════════
+
 .layout-admin {
   display: flex;
   min-height: 100vh;
 
   .admin-sidebar {
-    width: 220px;
-    background: #304156;
-    color: #bfcbd9;
+    width: 240px;
+    background: #1e1b16;
+    color: #a09888;
     flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
 
     .sidebar-logo {
-      height: 60px;
+      height: 68px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
-      color: #fff;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+      font-size: 17px;
+      font-weight: 700;
+      color: #d4c9b8;
+      letter-spacing: 0.04em;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
     }
 
-    .el-menu {
+    :deep(.el-menu) {
       border-right: none;
+      background: transparent;
+
+      .el-menu-item {
+        color: #a09888;
+        margin: 4px 12px;
+        border-radius: $radius-sm;
+        height: 44px;
+        line-height: 44px;
+        transition: all $transition-fast;
+        font-size: 14px;
+        letter-spacing: 0.02em;
+
+        &:hover {
+          background: rgba(255,255,255,0.06);
+          color: #d4c9b8;
+        }
+        &.is-active {
+          background: rgba(139, 105, 20, 0.2);
+          color: #c8a94e;
+          font-weight: 600;
+        }
+
+        .el-icon { margin-right: 10px; }
+      }
     }
   }
 
@@ -135,16 +341,86 @@ a {
     flex: 1;
     display: flex;
     flex-direction: column;
-    background: #f0f2f5;
+    background: $color-bg;
+    min-width: 0;
 
     .admin-header {
-      height: 60px;
-      background: #fff;
+      height: 68px;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(16px);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 20px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      padding: 0 28px;
+      border-bottom: 1px solid $color-border-light;
+      font-size: 16px;
+      font-weight: 600;
+      color: $color-text;
+      letter-spacing: 0.02em;
+    }
+
+    .admin-content {
+      padding: 28px;
+      flex: 1;
     }
   }
+}
+
+// ── Admin common styles ──
+.stat-card {
+  background: $color-surface;
+  border-radius: $radius-md;
+  padding: 24px;
+  border: 1px solid $color-border-light;
+  transition: all $transition-base;
+
+  &:hover {
+    box-shadow: $shadow-md;
+    border-color: transparent;
+  }
+
+  .stat-label {
+    font-size: 13px;
+    color: $color-text-muted;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: $color-text;
+    letter-spacing: -0.02em;
+  }
+}
+
+// ── Breadcrumb ──
+.el-breadcrumb {
+  margin-bottom: 28px;
+  font-size: 13px;
+  :deep(.el-breadcrumb__inner) {
+    color: $color-text-soft;
+    font-weight: 400;
+    &:hover { color: $color-primary; }
+  }
+  :deep(.el-breadcrumb__item:last-child .el-breadcrumb__inner) {
+    color: $color-text;
+    font-weight: 500;
+  }
+}
+
+// ── Pagination ──
+.el-pagination {
+  --el-pagination-bg-color: #{$color-surface};
+  --el-pagination-button-bg-color: #{$color-surface};
+  .el-pager li.is-active {
+    background: $color-primary  !important;
+  }
+}
+
+// ── Input / Select focus ──
+.el-input .el-input__wrapper,
+.el-select .el-select__wrapper {
+  border-radius: $radius-sm;
+  transition: all $transition-fast;
 }

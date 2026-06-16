@@ -1,26 +1,30 @@
 <template>
   <div class="category-manage">
     <div class="toolbar">
-      <h3 style="margin:0;">分类管理</h3>
-      <el-button type="primary" @click="openDialog()">新增分类</el-button>
+      <div class="section-title">分类管理</div>
+      <el-button type="primary" class="add-btn" @click="openDialog()">新增分类</el-button>
     </div>
 
-    <el-table :data="list" stripe v-loading="loading" style="margin-top:16px;">
-      <el-table-column prop="id" label="ID" width="80" />
-      <el-table-column prop="name" label="名称" min-width="160" />
-      <el-table-column label="父级分类" width="150">
-        <template #default="{ row }">
-          {{ parentName(row.parent_id) || '无' }}
-        </template>
-      </el-table-column>
-      <el-table-column prop="sort_order" label="排序" width="80" />
-      <el-table-column label="操作" width="160">
-        <template #default="{ row }">
-          <el-button type="primary" link size="small" @click="openDialog(row)">编辑</el-button>
-          <el-button type="danger" link size="small" @click="handleDelete(row)">删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+    <div class="table-card">
+      <el-table :data="list" stripe v-loading="loading">
+        <el-table-column prop="id" label="ID" width="80" />
+        <el-table-column prop="name" label="名称" min-width="160" />
+        <el-table-column label="父级分类" width="150">
+          <template #default="{ row }">
+            <span :class="{ 'parent-none': !parentName(row.parent_id) }">
+              {{ parentName(row.parent_id) || '无' }}
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="sort_order" label="排序" width="80" />
+        <el-table-column label="操作" width="160">
+          <template #default="{ row }">
+            <el-button type="primary" link size="small" class="edit-btn" @click="openDialog(row)">编辑</el-button>
+            <el-button type="danger" link size="small" class="delete-btn" @click="handleDelete(row)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
 
     <!-- 弹窗 -->
     <el-dialog v-model="dialogVisible" :title="isEdit ? '编辑分类' : '新增分类'" width="480px" destroy-on-close>
@@ -30,6 +34,7 @@
         </el-form-item>
         <el-form-item label="父级分类">
           <el-select v-model="form.parent_id" placeholder="请选择父级分类（可选）" clearable style="width:100%;">
+            <el-option label="无" :value="null" />
             <el-option
               v-for="c in parentOptions"
               :key="c.id"
@@ -39,12 +44,12 @@
           </el-select>
         </el-form-item>
         <el-form-item label="排序">
-          <el-input-number v-model="form.sort_order" :min="0" style="width:160px;" />
+          <el-input-number v-model="form.sort_order" :min="0" class="sort-input" />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" :loading="submitting" @click="handleSave">确定</el-button>
+        <el-button class="cancel-btn" @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" :loading="submitting" class="confirm-btn" @click="handleSave">确定</el-button>
       </template>
     </el-dialog>
   </div>
@@ -151,9 +156,166 @@ onMounted(fetchList)
 </script>
 
 <style lang="scss" scoped>
+.category-manage {
+  font-family: system-ui, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
 .toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #2c2416;
+}
+
+.add-btn {
+  height: 38px;
+  padding: 0 20px;
+  font-weight: 500;
+}
+
+.table-card {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #f0ece5;
+  box-shadow: 0 1px 4px rgba(44, 36, 22, 0.04);
+  overflow: hidden;
+}
+
+.parent-none {
+  color: #b8af9e;
+}
+
+.sort-input {
+  width: 160px;
+}
+
+/* 表格去蓝化 */
+:deep(.el-table) {
+  --el-table-border-color: #f0ece5;
+  border-radius: 8px;
+
+  .el-table__header th {
+    background: #faf8f5;
+    color: #8c8170;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 14px 16px;
+    border-bottom: 1px solid #f0ece5;
+  }
+
+  .el-table__body td {
+    padding: 14px 16px;
+    color: #2c2416;
+    border-bottom: 1px solid #f0ece5;
+  }
+
+  .el-table__body tr:hover > td {
+    background: #fdf6e8;
+  }
+}
+
+/* 主按钮 */
+:deep(.el-button--primary) {
+  --el-button-bg-color: #8B6914;
+  --el-button-border-color: #8B6914;
+  --el-button-hover-bg-color: #a68b3c;
+  --el-button-hover-border-color: #a68b3c;
+  --el-button-active-bg-color: #7a5b11;
+  --el-button-active-border-color: #7a5b11;
+  border-radius: 8px;
+}
+
+/* 默认按钮 */
+:deep(.el-button:not(.el-button--primary)) {
+  --el-button-border-color: #e8e3dc;
+  --el-button-text-color: #8c8170;
+  --el-button-hover-border-color: #b8af9e;
+  --el-button-hover-text-color: #2c2416;
+  --el-button-bg-color: #fff;
+  border-radius: 8px;
+}
+
+/* 链接按钮 - 编辑 */
+:deep(.edit-btn) {
+  color: #8B6914 !important;
+
+  &:hover {
+    color: #a68b3c !important;
+  }
+}
+
+/* 链接按钮 - 删除 */
+:deep(.delete-btn) {
+  color: #c0392b !important;
+
+  &:hover {
+    color: #d94a3a !important;
+  }
+}
+
+/* 对话框 */
+:deep(.el-dialog) {
+  border-radius: 12px;
+
+  .el-dialog__header {
+    border-bottom: 1px solid #f0ece5;
+    padding: 20px 24px;
+
+    .el-dialog__title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #2c2416;
+    }
+  }
+
+  .el-dialog__body {
+    padding: 24px;
+  }
+
+  .el-dialog__footer {
+    border-top: 1px solid #f0ece5;
+    padding: 16px 24px;
+  }
+}
+
+/* 对话框内表单 */
+:deep(.el-form-item__label) {
+  font-size: 14px;
+  font-weight: 500;
+  color: #2c2416;
+  padding-bottom: 8px;
+}
+
+:deep(.el-input__wrapper) {
+  border-radius: 8px;
+  border-color: #e8e3dc;
+  box-shadow: 0 0 0 1px #e8e3dc inset;
+
+  &.is-focus {
+    border-color: #8B6914;
+    box-shadow: 0 0 0 1px #8B6914 inset;
+  }
+}
+
+:deep(.el-select) {
+  .el-input__wrapper {
+    border-radius: 8px;
+  }
+}
+
+:deep(.el-input-number) {
+  .el-input__wrapper {
+    border-radius: 8px;
+    border-color: #e8e3dc;
+    box-shadow: 0 0 0 1px #e8e3dc inset;
+  }
 }
 </style>

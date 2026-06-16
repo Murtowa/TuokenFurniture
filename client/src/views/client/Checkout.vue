@@ -1,75 +1,86 @@
 <template>
   <div class="checkout-page">
-    <h2 class="page-title">确认订单</h2>
-    <div v-if="cartItems.length === 0 && !loading" class="empty-tip">
-      <p>购物车为空，请先添加商品</p>
-      <el-button type="primary" @click="$router.push('/cart')">返回购物车</el-button>
-    </div>
-    <div v-else class="checkout-container">
-      <!-- 左：收货地址 -->
-      <div class="checkout-section address-section">
-        <div class="section-header">
-          <h3>收货地址</h3>
-          <el-button type="primary" size="small" @click="openAddressDialog()">新增地址</el-button>
-        </div>
-        <div v-loading="addressLoading" class="address-list">
-          <div v-if="addresses.length === 0" class="empty-hint">暂无收货地址，请先添加</div>
-          <div
-            v-for="addr in addresses"
-            :key="addr.id"
-            class="address-item"
-            :class="{ selected: selectedAddressId === addr.id }"
-            @click="selectedAddressId = addr.id"
-          >
-            <div class="addr-header">
-              <span class="addr-name">{{ addr.consignee }}</span>
-              <span class="addr-phone">{{ addr.phone }}</span>
-              <el-tag v-if="addr.isDefault" type="warning" size="small">默认</el-tag>
-            </div>
-            <div class="addr-detail">{{ addr.province }}{{ addr.city }}{{ addr.district }} {{ addr.detail }}</div>
-          </div>
-        </div>
+    <div class="container">
+      <h2 class="page-title">确认订单</h2>
+      <div v-if="cartItems.length === 0 && !loading" class="empty-tip">
+        <p>购物车为空，请先添加商品</p>
+        <el-button type="primary" @click="$router.push('/cart')">返回购物车</el-button>
       </div>
-
-      <!-- 中：商品列表 -->
-      <div class="checkout-section items-section">
-        <div class="section-header">
-          <h3>订单商品</h3>
-        </div>
-        <div class="items-list">
-          <div v-for="item in cartItems" :key="item.id" class="order-item">
-            <img :src="item.image || item.cover" alt="" class="item-img" />
-            <div class="item-info">
-              <div class="item-name">{{ item.name }}</div>
-              <div class="item-price-qty">
-                <span class="item-price">&yen;{{ item.price }}</span>
-                <span class="item-qty">x{{ item.quantity }}</span>
+      <div v-else class="checkout-container">
+        <!-- 左：收货地址 -->
+        <div class="checkout-section address-section">
+          <div class="section-header">
+            <h3>收货地址</h3>
+            <el-button type="primary" link size="small" @click="openAddressDialog()">
+              <el-icon><Plus /></el-icon> 新增地址
+            </el-button>
+          </div>
+          <div v-loading="addressLoading" class="address-list">
+            <div v-if="addresses.length === 0" class="empty-hint">暂无收货地址，请先添加</div>
+            <div
+              v-for="addr in addresses"
+              :key="addr.id"
+              class="address-item"
+              :class="{ selected: selectedAddressId === addr.id }"
+              @click="selectedAddressId = addr.id"
+            >
+              <div class="addr-header">
+                <span class="addr-name">{{ addr.consignee }}</span>
+                <span class="addr-phone">{{ addr.phone }}</span>
+                <el-tag v-if="addr.isDefault" size="small" class="default-tag">默认</el-tag>
               </div>
+              <div class="addr-detail">{{ addr.province }}{{ addr.city }}{{ addr.district }} {{ addr.detail }}</div>
             </div>
-            <div class="item-subtotal">&yen;{{ (item.price * item.quantity).toFixed(2) }}</div>
           </div>
         </div>
-      </div>
 
-      <!-- 右：订单摘要 -->
-      <div class="checkout-section summary-section">
-        <h3>订单摘要</h3>
-        <div class="summary-row">
-          <span>商品合计</span>
-          <span class="summary-price">&yen;{{ totalPrice.toFixed(2) }}</span>
+        <!-- 中：商品列表 -->
+        <div class="checkout-section items-section">
+          <div class="section-header">
+            <h3>订单商品</h3>
+          </div>
+          <div class="items-list">
+            <div v-for="item in cartItems" :key="item.id" class="order-item">
+              <img :src="item.image || item.cover" alt="" class="item-img" />
+              <div class="item-info">
+                <div class="item-name">{{ item.name }}</div>
+                <div class="item-price-qty">
+                  <span class="item-price">&yen;{{ item.price }}</span>
+                  <span class="item-qty">x{{ item.quantity }}</span>
+                </div>
+              </div>
+              <div class="item-subtotal">&yen;{{ (item.price * item.quantity).toFixed(2) }}</div>
+            </div>
+          </div>
         </div>
-        <div class="summary-remark">
-          <p class="remark-label">订单备注</p>
-          <el-input
-            v-model="remark"
-            type="textarea"
-            :rows="3"
-            placeholder="选填：如有特殊要求请在此备注"
-          />
+
+        <!-- 右：订单摘要 -->
+        <div class="checkout-section summary-section">
+          <h3>订单摘要</h3>
+          <div class="summary-row">
+            <span>商品合计</span>
+            <span class="summary-price">&yen;{{ totalPrice.toFixed(2) }}</span>
+          </div>
+          <div class="summary-remark">
+            <p class="remark-label">订单备注</p>
+            <el-input
+              v-model="remark"
+              type="textarea"
+              :rows="3"
+              placeholder="选填：如有特殊要求请在此备注"
+            />
+          </div>
+          <div class="summary-total-shipping">
+            配送: <span>免运费</span>
+          </div>
+          <div class="summary-total">
+            <span>应付总额</span>
+            <span class="total-amount">&yen;{{ totalPrice.toFixed(2) }}</span>
+          </div>
+          <el-button type="primary" size="large" style="width:100%;" :loading="submitting" @click="submitOrder">
+            提交订单
+          </el-button>
         </div>
-        <el-button type="primary" size="large" style="width:100%;" :loading="submitting" @click="submitOrder">
-          提交订单
-        </el-button>
       </div>
     </div>
 
@@ -117,6 +128,7 @@ import { useCartStore } from '@/stores/cart'
 import { useOrderStore } from '@/stores/order'
 import * as userApi from '@/api/user'
 import { ElMessage } from 'element-plus'
+import { Plus } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const cartStore = useCartStore()
@@ -251,30 +263,45 @@ onMounted(async () => {
 
 <style lang="scss" scoped>
 .checkout-page {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 24px 20px 60px;
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 28px 24px 80px;
+  }
 }
 
 .page-title {
-  font-size: 24px;
-  color: #303133;
-  margin: 0 0 24px 0;
-  font-weight: 600;
+  font-size: 28px;
+  font-weight: 700;
+  color: #2c2416;
+  margin: 0 0 32px 0;
+  position: relative;
+  padding-bottom: 12px;
+  letter-spacing: -0.02em;
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 40px;
+    height: 3px;
+    background: #8B6914;
+    border-radius: 1.5px;
+  }
 }
 
 .checkout-container {
   display: grid;
   grid-template-columns: 1fr 1.2fr 0.8fr;
-  gap: 20px;
+  gap: 24px;
   align-items: start;
 }
 
 .checkout-section {
   background: #fff;
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 24px;
-  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid #f0ece5;
 }
 
 .section-header {
@@ -283,19 +310,19 @@ onMounted(async () => {
   justify-content: space-between;
   margin-bottom: 16px;
 
-  h3 { margin: 0; font-size: 16px; color: #303133; }
+  h3 { margin: 0; font-size: 16px; color: #2c2416; font-weight: 600; letter-spacing: 0.02em; }
 }
 
 .address-item {
-  padding: 12px 14px;
-  border: 2px solid #ebeef5;
+  padding: 14px 16px;
+  border: 1px solid #f0ece5;
   border-radius: 8px;
   cursor: pointer;
   margin-bottom: 10px;
-  transition: border-color 0.2s;
+  transition: all 0.2s;
 
-  &.selected { border-color: #8b6914; background: #fdf8f0; }
-  &:hover { border-color: #c0a86a; }
+  &.selected { border-color: #8B6914; background: #fdf6e8; }
+  &:hover { border-color: #e8e3dc; }
 }
 
 .addr-header {
@@ -305,12 +332,13 @@ onMounted(async () => {
   margin-bottom: 6px;
 }
 
-.addr-name { font-weight: 600; color: #303133; }
-.addr-phone { color: #909399; font-size: 13px; }
-.addr-detail { color: #606266; font-size: 13px; }
+.addr-name { font-weight: 600; color: #2c2416; }
+.addr-phone { color: #8c8170; font-size: 13px; letter-spacing: 0.02em; }
+.addr-detail { color: #8c8170; font-size: 13px; letter-spacing: 0.02em; }
+.default-tag { background: #fdf6e8; color: #8B6914; border-color: #f0ece5; }
 
-.empty-hint { color: #909399; text-align: center; padding: 20px 0; }
-.empty-tip { text-align: center; padding: 80px 0; color: #909399; }
+.empty-hint { color: #b8af9e; text-align: center; padding: 20px 0; }
+.empty-tip { text-align: center; padding: 80px 0; color: #b8af9e; }
 
 .items-list { max-height: 500px; overflow-y: auto; }
 
@@ -319,7 +347,7 @@ onMounted(async () => {
   align-items: center;
   gap: 14px;
   padding: 14px 0;
-  border-bottom: 1px solid #f2f2f2;
+  border-bottom: 1px solid #f0ece5;
 
   &:last-child { border-bottom: none; }
 }
@@ -328,30 +356,106 @@ onMounted(async () => {
   width: 72px;
   height: 72px;
   object-fit: cover;
-  border-radius: 6px;
-  background: #f5f5f5;
+  border-radius: 8px;
+  background: #faf8f5;
   flex-shrink: 0;
 }
 
 .item-info { flex: 1; min-width: 0; }
-.item-name { font-size: 14px; color: #303133; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.item-name {
+  font-size: 14px;
+  color: #2c2416;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
 .item-price-qty { margin-top: 6px; display: flex; gap: 12px; align-items: center; }
-.item-price { color: #e74c3c; font-weight: 600; }
-.item-qty { color: #909399; font-size: 13px; }
-.item-subtotal { color: #e74c3c; font-weight: 600; font-size: 15px; white-space: nowrap; }
+.item-price { color: #c0392b; font-weight: 600; }
+.item-qty { color: #b8af9e; font-size: 13px; }
+.item-subtotal { color: #c0392b; font-weight: 600; font-size: 15px; white-space: nowrap; }
 
-.summary-section h3 { margin: 0 0 20px 0; font-size: 16px; color: #303133; }
+.summary-section h3 { margin: 0 0 20px 0; font-size: 16px; color: #2c2416; font-weight: 600; letter-spacing: 0.02em; }
 
 .summary-row {
   display: flex;
   justify-content: space-between;
   padding: 14px 0;
-  border-bottom: 1px solid #f2f2f2;
+  border-bottom: 1px solid #f0ece5;
   font-size: 15px;
+  color: #8c8170;
 }
 
-.summary-price { color: #e74c3c; font-weight: 700; font-size: 18px; }
+.summary-price { color: #c0392b; font-weight: 700; font-size: 18px; }
 
-.summary-remark { margin: 16px 0 24px; }
-.remark-label { font-size: 14px; color: #606266; margin: 0 0 8px 0; }
+.summary-remark { margin: 16px 0; }
+.remark-label { font-size: 14px; color: #8c8170; margin: 0 0 8px 0; letter-spacing: 0.02em; }
+
+:deep(.el-textarea__inner) {
+  border-radius: 8px;
+  border-color: #e8e3dc;
+  background: #faf8f5;
+  &:focus {
+    border-color: #8B6914;
+  }
+}
+
+.summary-total-shipping {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  font-size: 14px;
+  color: #8c8170;
+  border-top: 1px solid #f0ece5;
+  span { color: #5b8c5a; }
+}
+
+.summary-total {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 0;
+  border-top: 1px solid #f0ece5;
+  margin-bottom: 20px;
+  font-size: 16px;
+  color: #2c2416;
+  font-weight: 600;
+  .total-amount {
+    font-size: 28px;
+    font-weight: 700;
+    color: #c0392b;
+  }
+}
+
+:deep(.el-button--primary) {
+  background: #8B6914;
+  border-color: #8B6914;
+  border-radius: 8px;
+  &:hover {
+    background: #a68b3c;
+    border-color: #a68b3c;
+  }
+}
+
+:deep(.el-button--primary.is-link) {
+  color: #8B6914;
+  background: transparent;
+  &:hover {
+    color: #a68b3c;
+  }
+}
+
+:deep(.el-input__wrapper) {
+  border-radius: 8px;
+  box-shadow: 0 0 0 1px #e8e3dc;
+  &:hover {
+    box-shadow: 0 0 0 1px #c0b9a8;
+  }
+  &.is-focus {
+    box-shadow: 0 0 0 1px #8B6914;
+  }
+}
+
+:deep(.el-dialog) {
+  border-radius: 12px;
+}
 </style>

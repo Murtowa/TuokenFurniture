@@ -16,7 +16,8 @@
         </el-form-item>
       </el-form>
       <div class="card-footer">
-        <router-link to="/register">没有账号？去注册</router-link>
+        <span class="footer-text">还没有账号？</span>
+        <router-link to="/register">去注册</router-link>
       </div>
     </div>
   </div>
@@ -71,38 +72,71 @@ async function handleLogin() {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: #f5f0eb;
+  background: #faf8f5;
 }
 
 .login-card {
   width: 420px;
   max-width: 90vw;
-  padding: 44px 40px;
+  padding: 48px;
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0ece5;
+  box-shadow: 0 4px 24px rgba(44, 36, 22, 0.06);
 }
 
 .card-title {
   text-align: center;
-  font-size: 22px;
-  color: #303133;
+  font-size: 24px;
+  font-weight: 700;
+  color: #2c2416;
   margin: 0 0 36px 0;
-  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
 .card-footer {
   text-align: center;
   margin-top: 8px;
 
+  .footer-text {
+    color: #8c8170;
+    font-size: 14px;
+    letter-spacing: 0.02em;
+  }
+
   a {
-    color: #8b6914;
+    color: #8B6914;
     font-size: 14px;
     text-decoration: none;
+    letter-spacing: 0.02em;
 
     &:hover {
-      color: #a07818;
+      color: #a68b3c;
     }
+  }
+}
+
+:deep(.el-input .el-input__wrapper) {
+  border-radius: 8px;
+  box-shadow: 0 0 0 1px #e8e3dc;
+}
+
+:deep(.el-input .el-input__wrapper:hover) {
+  box-shadow: 0 0 0 1px #c0b9a8;
+}
+
+:deep(.el-input .el-input__wrapper.is-focus) {
+  box-shadow: 0 0 0 1px #8B6914;
+}
+
+:deep(.el-button--primary) {
+  border-radius: 8px;
+  background: #8B6914;
+  border-color: #8B6914;
+
+  &:hover {
+    background: #a68b3c;
+    border-color: #a68b3c;
   }
 }
 </style>

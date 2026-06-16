@@ -53,7 +53,7 @@ const orderModel = {
     const [rows] = await pool.execute(
       `SELECT id, order_no, total_amount, status, created_at
        FROM orders WHERE user_id = ? ORDER BY id DESC LIMIT ? OFFSET ?`,
-      [userId, pageSize, offset]
+      [userId, String(pageSize), String(offset)]
     )
     const [countResult] = await pool.execute(
       'SELECT COUNT(*) as total FROM orders WHERE user_id = ?', [userId]
@@ -125,7 +125,7 @@ const orderModel = {
        FROM orders o
        LEFT JOIN users u ON o.user_id = u.id
        ${where} ORDER BY o.id DESC LIMIT ? OFFSET ?`,
-      [...params, pageSize, offset]
+      [...params, String(pageSize), String(offset)]
     )
     const [countResult] = await pool.execute(
       `SELECT COUNT(*) as total FROM orders o ${where}`, params

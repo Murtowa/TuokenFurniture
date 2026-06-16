@@ -40,7 +40,7 @@ const userModel = {
     const offset = (page - 1) * pageSize
     const [rows] = await pool.execute(
       `SELECT id, username, nickname, phone, avatar, status, created_at FROM users ${where} ORDER BY id DESC LIMIT ? OFFSET ?`,
-      [...params, pageSize, offset]
+      [...params, String(pageSize), String(offset)]
     )
     const [countResult] = await pool.execute(
       `SELECT COUNT(*) as total FROM users ${where}`, params

@@ -1,58 +1,62 @@
 <template>
   <div class="user-profile-page">
-    <h2 class="page-title">个人中心</h2>
+    <div class="container">
+      <h2 class="page-title">个人中心</h2>
 
-    <el-tabs v-model="activeTab" class="profile-tabs">
-      <el-tab-pane label="个人信息" name="info">
-        <div class="tab-content">
-          <el-form ref="profileFormRef" :model="profileForm" :rules="profileRules" label-width="80px" class="profile-form">
-            <el-form-item label="用户名">
-              <el-input :value="auth.user?.username" disabled />
-            </el-form-item>
-            <el-form-item label="昵称" prop="nickname">
-              <el-input v-model="profileForm.nickname" placeholder="请输入昵称" />
-            </el-form-item>
-            <el-form-item label="手机号" prop="phone">
-              <el-input v-model="profileForm.phone" placeholder="请输入手机号" />
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" :loading="profileSaving" @click="saveProfile">保存修改</el-button>
-            </el-form-item>
-          </el-form>
-        </div>
-      </el-tab-pane>
-
-      <el-tab-pane label="收货地址" name="address">
-        <div class="tab-content">
-          <div class="address-actions">
-            <el-button type="primary" @click="openAddrDialog()">新增地址</el-button>
+      <el-tabs v-model="activeTab" class="profile-tabs">
+        <el-tab-pane label="个人信息" name="info">
+          <div class="tab-content">
+            <el-form ref="profileFormRef" :model="profileForm" :rules="profileRules" label-width="80px" class="profile-form">
+              <el-form-item label="用户名">
+                <el-input :value="auth.user?.username" disabled />
+              </el-form-item>
+              <el-form-item label="昵称" prop="nickname">
+                <el-input v-model="profileForm.nickname" placeholder="请输入昵称" />
+              </el-form-item>
+              <el-form-item label="手机号" prop="phone">
+                <el-input v-model="profileForm.phone" placeholder="请输入手机号" />
+              </el-form-item>
+              <el-form-item>
+                <el-button type="primary" :loading="profileSaving" @click="saveProfile">保存修改</el-button>
+              </el-form-item>
+            </el-form>
           </div>
-          <div v-loading="addrLoading" class="address-grid">
-            <div v-if="addresses.length === 0" class="empty-hint">暂无收货地址</div>
-            <div v-for="addr in addresses" :key="addr.id" class="addr-card">
-              <div class="addr-card-header">
-                <span class="addr-name">{{ addr.consignee }}</span>
-                <span class="addr-phone">{{ addr.phone }}</span>
-              </div>
-              <div class="addr-detail">
-                {{ addr.province }}{{ addr.city }}{{ addr.district }} {{ addr.detail }}
-              </div>
-              <div class="addr-tags">
-                <el-tag v-if="addr.isDefault" type="warning" size="small">默认地址</el-tag>
-              </div>
-              <div class="addr-actions">
-                <el-button size="small" text type="primary" @click="openAddrDialog(addr)">编辑</el-button>
-                <el-popconfirm title="确认删除该地址？" @confirm="deleteAddress(addr.id)">
-                  <template #reference>
-                    <el-button size="small" text type="danger">删除</el-button>
-                  </template>
-                </el-popconfirm>
+        </el-tab-pane>
+
+        <el-tab-pane label="收货地址" name="address">
+          <div class="tab-content">
+            <div class="address-actions">
+              <el-button type="primary" @click="openAddrDialog()">
+                <el-icon><Plus /></el-icon> 新增地址
+              </el-button>
+            </div>
+            <div v-loading="addrLoading" class="address-grid">
+              <div v-if="addresses.length === 0" class="empty-hint">暂无收货地址</div>
+              <div v-for="addr in addresses" :key="addr.id" class="addr-card">
+                <div class="addr-card-header">
+                  <span class="addr-name">{{ addr.consignee }}</span>
+                  <span class="addr-phone">{{ addr.phone }}</span>
+                </div>
+                <div class="addr-detail">
+                  {{ addr.province }}{{ addr.city }}{{ addr.district }} {{ addr.detail }}
+                </div>
+                <div class="addr-tags">
+                  <el-tag v-if="addr.isDefault" size="small" class="default-tag">默认地址</el-tag>
+                </div>
+                <div class="addr-actions">
+                  <el-button size="small" text @click="openAddrDialog(addr)">编辑</el-button>
+                  <el-popconfirm title="确认删除该地址？" @confirm="deleteAddress(addr.id)">
+                    <template #reference>
+                      <el-button size="small" text class="btn-delete">删除</el-button>
+                    </template>
+                  </el-popconfirm>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </el-tab-pane>
-    </el-tabs>
+        </el-tab-pane>
+      </el-tabs>
+    </div>
 
     <!-- 地址弹窗 -->
     <el-dialog v-model="addrDialogVisible" :title="editingAddr ? '编辑地址' : '新增地址'" width="520px" destroy-on-close>
@@ -97,6 +101,7 @@ import { useAuthStore } from '@/stores/auth'
 import * as userApi from '@/api/user'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
+import { Plus } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -231,19 +236,64 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .user-profile-page {
-  max-width: 860px;
-  margin: 0 auto;
-  padding: 24px 20px 60px;
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 28px 24px 80px;
+  }
 }
 
 .page-title {
-  font-size: 24px;
-  color: #303133;
-  margin: 0 0 24px 0;
-  font-weight: 600;
+  font-size: 28px;
+  font-weight: 700;
+  color: #2c2416;
+  margin: 0 0 32px 0;
+  position: relative;
+  padding-bottom: 12px;
+  letter-spacing: -0.02em;
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 40px;
+    height: 3px;
+    background: #8B6914;
+    border-radius: 1.5px;
+  }
 }
 
-.profile-tabs { background: #fff; border-radius: 10px; padding: 24px 28px; box-shadow: 0 1px 8px rgba(0,0,0,.04); }
+.profile-tabs {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px 28px;
+  border: 1px solid #f0ece5;
+
+  :deep(.el-tabs__header) {
+    margin-bottom: 20px;
+  }
+
+  :deep(.el-tabs__nav-wrap::after) {
+    background-color: #f0ece5;
+  }
+
+  :deep(.el-tabs__item) {
+    color: #8c8170;
+    font-size: 15px;
+    letter-spacing: 0.02em;
+    &:hover {
+      color: #8B6914;
+    }
+    &.is-active {
+      color: #8B6914;
+      font-weight: 600;
+    }
+  }
+
+  :deep(.el-tabs__active-bar) {
+    background-color: #8B6914;
+  }
+}
 
 .tab-content { min-height: 300px; }
 
@@ -257,15 +307,19 @@ onMounted(() => {
   gap: 16px;
 }
 
-.empty-hint { color: #909399; text-align: center; padding: 40px 0; grid-column: 1 / -1; }
+.empty-hint { color: #b8af9e; text-align: center; padding: 40px 0; grid-column: 1 / -1; }
 
 .addr-card {
-  border: 1px solid #ebeef5;
-  border-radius: 8px;
-  padding: 16px;
-  transition: box-shadow 0.2s;
+  border: 1px solid #f0ece5;
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.3s ease;
+  background: #fff;
 
-  &:hover { box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+  &:hover {
+    box-shadow: 0 4px 16px rgba(44, 36, 22, 0.08);
+    transform: translateY(-2px);
+  }
 }
 
 .addr-card-header {
@@ -275,12 +329,56 @@ onMounted(() => {
   margin-bottom: 8px;
 }
 
-.addr-name { font-weight: 600; color: #303133; }
-.addr-phone { color: #909399; font-size: 13px; }
-.addr-detail { color: #606266; font-size: 13px; margin-bottom: 10px; line-height: 1.5; }
+.addr-name { font-weight: 600; color: #2c2416; }
+.addr-phone { color: #8c8170; font-size: 13px; letter-spacing: 0.02em; }
+.addr-detail { color: #8c8170; font-size: 13px; margin-bottom: 10px; line-height: 1.5; letter-spacing: 0.02em; }
 .addr-tags { margin-bottom: 12px; }
 
-.addr-actions { display: flex; gap: 4px; }
+.default-tag {
+  background: #fdf6e8;
+  color: #8B6914;
+  border-color: #f0ece5;
+}
 
-:deep(.el-tabs__header) { margin-bottom: 20px; }
+.addr-actions {
+  display: flex;
+  gap: 4px;
+  :deep(.el-button.is-text) {
+    color: #8B6914;
+    &:hover {
+      color: #a68b3c;
+    }
+  }
+  .btn-delete {
+    color: #c0392b !important;
+    &:hover {
+      color: #e74c3c !important;
+    }
+  }
+}
+
+:deep(.el-button--primary) {
+  background: #8B6914;
+  border-color: #8B6914;
+  border-radius: 8px;
+  &:hover {
+    background: #a68b3c;
+    border-color: #a68b3c;
+  }
+}
+
+:deep(.el-input__wrapper) {
+  border-radius: 8px;
+  box-shadow: 0 0 0 1px #e8e3dc;
+  &:hover {
+    box-shadow: 0 0 0 1px #c0b9a8;
+  }
+  &.is-focus {
+    box-shadow: 0 0 0 1px #8B6914;
+  }
+}
+
+:deep(.el-dialog) {
+  border-radius: 12px;
+}
 </style>

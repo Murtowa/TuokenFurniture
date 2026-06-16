@@ -2,6 +2,7 @@
   <div class="admin-login">
     <div class="login-card">
       <h2 class="login-title">拓肯管理后台</h2>
+      <p class="login-subtitle">专业的家居电商管理平台</p>
       <el-form ref="formRef" :model="form" :rules="rules" label-width="0" size="large" @submit.prevent="handleLogin">
         <el-form-item prop="username">
           <el-input v-model="form.username" placeholder="请输入用户名" prefix-icon="User" />
@@ -10,7 +11,7 @@
           <el-input v-model="form.password" type="password" placeholder="请输入密码" prefix-icon="Lock" show-password />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" :loading="loading" style="width:100%;" @click="handleLogin">
+          <el-button type="primary" :loading="loading" class="login-btn" @click="handleLogin">
             登 录
           </el-button>
         </el-form-item>
@@ -65,22 +66,63 @@ async function handleLogin() {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: #f0f2f5;
+  background: #faf8f5;
+  font-family: system-ui, 'PingFang SC', 'Microsoft YaHei', sans-serif;
 }
 
 .login-card {
   width: 400px;
-  padding: 40px 36px;
+  padding: 48px;
   background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  border: 1px solid #f0ece5;
+  box-shadow: 0 4px 24px rgba(44, 36, 22, 0.06);
 }
 
 .login-title {
   text-align: center;
-  font-size: 24px;
-  color: #303133;
+  font-size: 22px;
+  color: #2c2416;
+  margin: 0 0 8px 0;
+  font-weight: 700;
+}
+
+.login-subtitle {
+  text-align: center;
+  font-size: 13px;
+  color: #b8af9e;
   margin: 0 0 32px 0;
-  font-weight: 600;
+}
+
+.login-btn {
+  width: 100%;
+  height: 44px;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+}
+
+:deep(.el-input__wrapper) {
+  border-radius: 8px;
+  border-color: #e8e3dc;
+  box-shadow: 0 0 0 1px #e8e3dc inset;
+
+  &:hover {
+    border-color: #a68b3c;
+  }
+}
+
+:deep(.el-input__wrapper.is-focus) {
+  border-color: #8B6914;
+  box-shadow: 0 0 0 1px #8B6914 inset;
+}
+
+:deep(.el-button--primary) {
+  --el-button-bg-color: #8B6914;
+  --el-button-border-color: #8B6914;
+  --el-button-hover-bg-color: #a68b3c;
+  --el-button-hover-border-color: #a68b3c;
+  --el-button-active-bg-color: #7a5b11;
+  --el-button-active-border-color: #7a5b11;
+  border-radius: 8px;
 }
 </style>
