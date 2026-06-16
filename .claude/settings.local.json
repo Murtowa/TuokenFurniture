@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:www.duoke360.com)",
+      "WebFetch(domain:www.neican.ai)",
+      "WebFetch(domain:www.tmtpost.com)",
+      "WebFetch(domain:www.cnbctv18.com)",
+      "WebFetch(domain:openatom.openatom.tech)",
+      "Bash(cat \"C:/Users/Administrator/.claude/settings.local.json\" 2>/dev/null || echo \"Not found\")",
+      "Read(//c/Users/Administrator/.claude/**)",
+      "Bash(npm list *)",
+      "Bash(claude plugin *)",
+      "Bash(git config *)",
+      "Bash(mkdir -p ~/.ssh)",
+      "Bash(ssh-keyscan github.com)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" --connect-timeout 10 https://github.com)",
+      "Bash(git clone *)",
+      "Bash(rm -rf /tmp/test-superpowers-clone)",
+      "Bash(export GIT_TRACE=1)",
+      "Bash(npx skills@latest add mattpocock/skills/grill-me)",
+      "Bash(ls -la \"g:/work/AI coding/..\")",
+      "Read(//g/work/**)"
+    ],
+    "additionalDirectories": [
+      "\\tmp"
+    ]
+  }
+}

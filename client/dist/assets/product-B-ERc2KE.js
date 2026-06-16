@@ -1,0 +1,1 @@
+import{r as t}from"./request-B4Cwkytn.js";function n(e){return t.get("/products",{params:e})}function o(e){return t.get(`/products/${e}`)}function s(){return t.get("/categories")}function u(){return t.get("/banners")}export{s as a,n as b,o as c,u as g};
