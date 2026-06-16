@@ -1,0 +1,119 @@
+-- Tuoken Furniture Database Schema
+
+CREATE DATABASE IF NOT EXISTS tuoken_furniture DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE tuoken_furniture;
+
+-- Users
+CREATE TABLE IF NOT EXISTS users (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  username VARCHAR(50) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  nickname VARCHAR(50),
+  phone VARCHAR(20),
+  avatar VARCHAR(255),
+  status TINYINT DEFAULT 1 COMMENT '1启用 0禁用',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- Admin users
+CREATE TABLE IF NOT EXISTS admin_users (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  username VARCHAR(50) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  nickname VARCHAR(50),
+  role VARCHAR(20) DEFAULT 'admin',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- Categories
+CREATE TABLE IF NOT EXISTS categories (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(50) NOT NULL,
+  parent_id INT DEFAULT NULL,
+  sort_order INT DEFAULT 0,
+  icon VARCHAR(255),
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (parent_id) REFERENCES categories(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- Banners
+CREATE TABLE IF NOT EXISTS banners (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  image VARCHAR(255) NOT NULL,
+  link VARCHAR(255),
+  sort_order INT DEFAULT 0,
+  status TINYINT DEFAULT 1,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- Products
+CREATE TABLE IF NOT EXISTS products (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  category_id INT,
+  name VARCHAR(100) NOT NULL,
+  description TEXT,
+  price DECIMAL(10,2) NOT NULL,
+  stock INT DEFAULT 0,
+  main_image VARCHAR(255),
+  images JSON,
+  status TINYINT DEFAULT 1 COMMENT '1上架 0下架',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- Addresses
+CREATE TABLE IF NOT EXISTS addresses (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  user_id INT NOT NULL,
+  receiver_name VARCHAR(50),
+  phone VARCHAR(20),
+  province VARCHAR(50),
+  city VARCHAR(50),
+  district VARCHAR(50),
+  detail VARCHAR(255),
+  is_default TINYINT DEFAULT 0,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Cart items
+CREATE TABLE IF NOT EXISTS cart_items (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  user_id INT NOT NULL,
+  product_id INT NOT NULL,
+  quantity INT DEFAULT 1,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Orders
+CREATE TABLE IF NOT EXISTS orders (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  order_no VARCHAR(30) NOT NULL UNIQUE,
+  user_id INT NOT NULL,
+  address_snapshot JSON,
+  total_amount DECIMAL(10,2) NOT NULL,
+  status ENUM('pending','paid','shipped','completed','cancelled') DEFAULT 'pending',
+  remark VARCHAR(500),
+  paid_at DATETIME,
+  shipped_at DATETIME,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Order items
+CREATE TABLE IF NOT EXISTS order_items (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  order_id INT NOT NULL,
+  product_id INT NOT NULL,
+  product_snapshot JSON,
+  quantity INT NOT NULL,
+  price DECIMAL(10,2) NOT NULL,
+  FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+  FOREIGN KEY (product_id) REFERENCES products(id)
+) ENGINE=InnoDB;
