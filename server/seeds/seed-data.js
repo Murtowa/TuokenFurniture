@@ -5,7 +5,7 @@ require('dotenv').config({ path: path.join(__dirname, '..', '.env') })
 
 const uploadsDir = path.join(__dirname, '..', 'uploads')
 
-// Generate a simple SVG placeholder image with a colored background and label
+// Generate SVG placeholder image
 function generateSVG(width, height, bgColor, text, textColor) {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
   <defs>
@@ -33,42 +33,49 @@ function escapeXml(s) {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 }
 
-// Data definitions with colors
+// Data definitions
 const data = {
   banners: [
-    { width: 1200, height: 520, color: '#2c3e50', text: '品质家电 焕新生活', textColor: '#ffffff', file: 'banner_1.svg' },
-    { width: 1200, height: 520, color: '#8B6914', text: '智能家居 触手可及', textColor: '#ffffff', file: 'banner_2.svg' },
-    { width: 1200, height: 520, color: '#1a5276', text: '夏日清凉季 空调冰箱限时特惠', textColor: '#ffffff', file: 'banner_3.svg' },
+    { file: 'banner_1', width: 1200, height: 520, color: '#2c3e50', title: '品质家电 焕新生活', subtitle: '全场满2999包邮' },
+    { file: 'banner_2', width: 1200, height: 520, color: '#8B6914', title: '智能家居 触手可及', subtitle: '大牌正品 品质保证' },
+    { file: 'banner_3', width: 1200, height: 520, color: '#1a5276', title: '夏日清凉季', subtitle: '空调冰箱限时特惠' },
   ],
-  categories: {
-    '电视机': { color: '#e74c3c', file: 'cat_tv.svg' },
-    '冰箱': { color: '#2980b9', file: 'cat_fridge.svg' },
-    '空调': { color: '#27ae60', file: 'cat_ac.svg' },
-    '洗衣机': { color: '#8e44ad', file: 'cat_washer.svg' },
-  },
+  categories: [
+    { name: '电视机', color: '#e74c3c', file: 'cat_tv' },
+    { name: '冰箱',   color: '#2980b9', file: 'cat_fridge' },
+    { name: '空调',   color: '#27ae60', file: 'cat_ac' },
+    { name: '洗衣机', color: '#8e44ad', file: 'cat_washer' },
+  ],
   products: {
     '电视机': [
-      { name: '小米电视 65英寸 4K超高清', price: 2999, color: '#c0392b', file: 'prod_tv_1.svg' },
-      { name: '海信 55英寸 ULED超画质', price: 2599, color: '#e74c3c', file: 'prod_tv_2.svg' },
-      { name: 'TCL 75英寸 QLED量子点', price: 4999, color: '#d35400', file: 'prod_tv_3.svg' },
-      { name: '索尼 55英寸 4K HDR智能电视', price: 4299, color: '#a93226', file: 'prod_tv_4.svg' },
+      { name: '小米电视 65英寸 4K超高清', price: 2999, color: '#c0392b', file: 'prod_tv_1' },
+      { name: '海信 55英寸 ULED超画质',    price: 2599, color: '#e74c3c', file: 'prod_tv_2' },
+      { name: 'TCL 75英寸 QLED量子点',     price: 4999, color: '#d35400', file: 'prod_tv_3' },
+      { name: '索尼 55英寸 4K HDR智能电视', price: 4299, color: '#a93226', file: 'prod_tv_4' },
     ],
     '冰箱': [
-      { name: '海尔 双门冰箱 218升 风冷无霜', price: 1999, color: '#2471a3', file: 'prod_fridge_1.svg' },
-      { name: '美的 三门冰箱 258升 变频节能', price: 2399, color: '#2980b9', file: 'prod_fridge_2.svg' },
-      { name: '容声 对开门冰箱 536升 智能温控', price: 3299, color: '#1a5276', file: 'prod_fridge_3.svg' },
+      { name: '海尔 双门冰箱 218升 风冷无霜', price: 1999, color: '#2471a3', file: 'prod_fridge_1' },
+      { name: '美的 三门冰箱 258升 变频节能', price: 2399, color: '#2980b9', file: 'prod_fridge_2' },
+      { name: '容声 对开门冰箱 536升 智能温控', price: 3299, color: '#1a5276', file: 'prod_fridge_3' },
     ],
     '空调': [
-      { name: '格力 壁挂式空调 1.5匹 变频冷暖', price: 2999, color: '#1e8449', file: 'prod_ac_1.svg' },
-      { name: '美的 立式空调 3匹 新一级能效', price: 5999, color: '#27ae60', file: 'prod_ac_2.svg' },
-      { name: '奥克斯 壁挂空调 大1匹 急速冷暖', price: 1899, color: '#2ecc71', file: 'prod_ac_3.svg' },
+      { name: '格力 壁挂式空调 1.5匹 变频冷暖', price: 2999, color: '#1e8449', file: 'prod_ac_1' },
+      { name: '美的 立式空调 3匹 新一级能效',   price: 5999, color: '#27ae60', file: 'prod_ac_2' },
+      { name: '奥克斯 壁挂空调 大1匹 急速冷暖',  price: 1899, color: '#2ecc71', file: 'prod_ac_3' },
     ],
     '洗衣机': [
-      { name: '海尔 滚筒洗衣机 10公斤 变频静音', price: 2699, color: '#7d3c98', file: 'prod_washer_1.svg' },
-      { name: '小天鹅 波轮洗衣机 8公斤 智能称重', price: 1399, color: '#8e44ad', file: 'prod_washer_2.svg' },
-      { name: '西门子 洗烘一体 10公斤 除菌除螨', price: 4599, color: '#6c3483', file: 'prod_washer_3.svg' },
+      { name: '海尔 滚筒洗衣机 10公斤 变频静音',  price: 2699, color: '#7d3c98', file: 'prod_washer_1' },
+      { name: '小天鹅 波轮洗衣机 8公斤 智能称重', price: 1399, color: '#8e44ad', file: 'prod_washer_2' },
+      { name: '西门子 洗烘一体 10公斤 除菌除螨',  price: 4599, color: '#6c3483', file: 'prod_washer_3' },
     ],
   }
+}
+
+// Pick available image extension (jpg > png > svg)
+function getExt(fileBase) {
+  if (fs.existsSync(path.join(uploadsDir, fileBase + '.jpg'))) return '.jpg'
+  if (fs.existsSync(path.join(uploadsDir, fileBase + '.png'))) return '.png'
+  return '.svg'
 }
 
 async function seed() {
@@ -80,86 +87,80 @@ async function seed() {
     database: process.env.DB_NAME || 'tuoken_furniture'
   })
 
-  console.log('=== 生成占位图片并填充数据 ===\n')
+  // 清空旧数据（保留表结构）
+  console.log('[清理] 清空旧数据...')
+  await connection.query('DELETE FROM order_items')
+  await connection.query('DELETE FROM orders')
+  await connection.query('DELETE FROM cart_items')
+  await connection.query('DELETE FROM addresses')
+  await connection.query('DELETE FROM products')
+  await connection.query('DELETE FROM categories')
+  await connection.query('DELETE FROM banners')
+  console.log('  旧数据已清除')
 
-  // 1. Generate banner SVGs & insert
-  console.log('[Banners] 生成轮播图...')
+  // 确保 uploads 目录存在
+  if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true })
+
+  console.log('\n=== 生成占位图并填充数据 ===\n')
+
+  // 1. Banners
+  console.log('[Banners]')
   for (let i = 0; i < data.banners.length; i++) {
     const b = data.banners[i]
-    const dest = path.join(uploadsDir, b.file)
-    const svg = generateSVG(b.width, b.height, b.color, b.text, b.textColor)
-    fs.writeFileSync(dest, svg)
-    console.log(`  ✓ ${b.file} (${svg.length} bytes)`)
-
-    // Extract title from text
-    const parts = b.text.split(' ')
-    const title = parts.slice(0, 2).join(' ')
-    const subtitle = parts.slice(2).join(' ') || ''
-
+    const svgPath = path.join(uploadsDir, b.file + '.svg')
+    const svg = generateSVG(b.width, b.height, b.color, b.title, '#ffffff')
+    fs.writeFileSync(svgPath, svg)
+    const ext = getExt(b.file)
     await connection.execute(
       'INSERT INTO banners (image, title, subtitle, link, sort_order, status) VALUES (?, ?, ?, ?, ?, 1)',
-      [b.file, title, subtitle || b.text.slice(3), '/products', i]
+      [b.file + ext, b.title, b.subtitle, '/products', i]
     )
+    console.log(`  ✓ ${b.file}${ext} — ${b.title}`)
   }
-  console.log(`  已插入 ${data.banners.length} 条轮播图\n`)
+  console.log(`  已插入 ${data.banners.length} 条\n`)
 
-  // 2. Generate category SVGs & insert
-  console.log('[Categories] 生成分类图...')
+  // 2. Categories
+  console.log('[Categories]')
   const categoryIds = {}
-  for (const [name, cat] of Object.entries(data.categories)) {
-    const dest = path.join(uploadsDir, cat.file)
-    const svg = generateSVG(200, 200, cat.color, name, '#ffffff')
-    fs.writeFileSync(dest, svg)
-    console.log(`  ✓ ${cat.file} (${svg.length} bytes)`)
-
+  for (let i = 0; i < data.categories.length; i++) {
+    const cat = data.categories[i]
+    const svgPath = path.join(uploadsDir, cat.file + '.svg')
+    const svg = generateSVG(200, 200, cat.color, cat.name, '#ffffff')
+    fs.writeFileSync(svgPath, svg)
+    const ext = getExt(cat.file)
     const [result] = await connection.execute(
       'INSERT INTO categories (name, icon, sort_order) VALUES (?, ?, ?)',
-      [name, cat.file, Object.keys(data.categories).indexOf(name)]
+      [cat.name, cat.file + ext, i]
     )
-    categoryIds[name] = result.insertId
+    categoryIds[cat.name] = result.insertId
+    console.log(`  ✓ ${cat.file}${ext} — ${cat.name}`)
   }
-  console.log(`  已插入 ${Object.keys(data.categories).length} 个分类\n`)
+  console.log(`  已插入 ${data.categories.length} 个分类\n`)
 
-  // 3. Generate product SVGs & insert
-  console.log('[Products] 生成产品图...')
+  // 3. Products
+  console.log('[Products]')
   let productCount = 0
   for (const [catName, products] of Object.entries(data.products)) {
     for (const p of products) {
-      const dest = path.join(uploadsDir, p.file)
-      // Show product name on image
+      const svgPath = path.join(uploadsDir, p.file + '.svg')
       const displayText = p.name.length > 10 ? p.name.slice(0, 10) + '...' : p.name
       const svg = generateSVG(600, 600, p.color, displayText, '#ffffff')
-      fs.writeFileSync(dest, svg)
-      console.log(`  ✓ ${p.file} (${svg.length} bytes)`)
-
+      fs.writeFileSync(svgPath, svg)
+      const ext = getExt(p.file)
       await connection.execute(
         'INSERT INTO products (category_id, name, price, description, main_image, stock, status) VALUES (?, ?, ?, ?, ?, ?, 1)',
-        [categoryIds[catName], p.name, p.price, p.name + ' - 拓肯家电正品保障，全国联保', p.file, 100]
+        [categoryIds[catName], p.name, p.price, `${p.name} — 拓肯家电正品保障，全国联保`, p.file + ext, 100]
       )
       productCount++
     }
   }
   console.log(`  已插入 ${productCount} 个产品\n`)
 
-  // 4. Update banner titles from the original data
-  console.log('[Banners] 更新标题...')
-  const bannerTitles = [
-    { title: '品质家电 焕新生活', subtitle: '全场满2999包邮' },
-    { title: '智能家居 触手可及', subtitle: '大牌正品 品质保证' },
-    { title: '夏日清凉季', subtitle: '空调冰箱限时特惠' },
-  ]
-  const [banners] = await connection.query('SELECT id FROM banners ORDER BY sort_order')
-  for (let i = 0; i < banners.length; i++) {
-    await connection.execute(
-      'UPDATE banners SET title = ?, subtitle = ? WHERE id = ?',
-      [bannerTitles[i].title, bannerTitles[i].subtitle, banners[i].id]
-    )
-  }
-
-  console.log('=== 数据填充完成! ===')
-  console.log(`  Banners:  ${data.banners.length}`)
-  console.log(`  Categories: ${Object.keys(data.categories).length}`)
-  console.log(`  Products:   ${productCount}`)
+  console.log('=== 数据填充完成 ===')
+  console.log(`  Banners:     ${data.banners.length}`)
+  console.log(`  Categories:  ${data.categories.length}`)
+  console.log(`  Products:    ${productCount}`)
+  console.log(`\n提示：可用 JPG 图片替换 server/uploads/ 中的 .svg 占位图，脚本会自动识别`)
 
   await connection.end()
 }
