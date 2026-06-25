@@ -26,7 +26,7 @@
       </el-menu>
       <div style="flex:1" />
       <div class="sidebar-footer">
-        <el-button text style="color:#a09888;width:100%;" @click="doLogout">
+        <el-button text style="width:100%;" @click="doLogout">
           <el-icon><SwitchButton /></el-icon>
           <span style="margin-left:8px;">退出登录</span>
         </el-button>
@@ -78,8 +78,12 @@ function doLogout() {
 
 <style lang="scss" scoped>
 .sidebar-footer {
-  border-top: 1px solid rgba(255,255,255,0.06);
+  border-top: 1px solid #e8e3dc;
   padding: 12px;
+  :deep(.el-button) {
+    color: #8c8170;
+    &:hover { color: #2c2416; background: rgba(139,105,20,0.06); }
+  }
 }
 .admin-user-trigger {
   cursor: pointer;

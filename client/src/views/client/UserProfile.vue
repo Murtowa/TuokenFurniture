@@ -184,13 +184,13 @@ function openAddrDialog(addr = null) {
   editingAddr.value = addr
   if (addr) {
     Object.assign(addrForm, {
-      consignee: addr.consignee,
+      consignee: addr.receiver_name,
       phone: addr.phone,
       province: addr.province || '',
       city: addr.city || '',
       district: addr.district || '',
       detail: addr.detail,
-      isDefault: !!addr.isDefault
+      isDefault: !!addr.is_default
     })
   } else {
     Object.assign(addrForm, { consignee: '', phone: '', province: '', city: '', district: '', detail: '', isDefault: false })
@@ -202,12 +202,21 @@ async function saveAddr() {
   const valid = await addrFormRef.value.validate().catch(() => false)
   if (!valid) return
   addrSaving.value = true
+  const payload = {
+    receiver_name: addrForm.consignee,
+    phone: addrForm.phone,
+    province: addrForm.province,
+    city: addrForm.city,
+    district: addrForm.district,
+    detail: addrForm.detail,
+    is_default: addrForm.isDefault
+  }
   try {
     if (editingAddr.value) {
-      await userApi.updateAddress(editingAddr.value.id, { ...addrForm })
+      await userApi.updateAddress(editingAddr.value.id, payload)
       ElMessage.success('地址已更新')
     } else {
-      await userApi.addAddress({ ...addrForm })
+      await userApi.addAddress(payload)
       ElMessage.success('地址已添加')
     }
     addrDialogVisible.value = false

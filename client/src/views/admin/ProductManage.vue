@@ -21,27 +21,32 @@
           <el-option label="下架" value="0" />
         </el-select>
       </div>
-      <el-button type="primary" class="add-btn" @click="$router.push('/admin/products/add')">新增商品</el-button>
+      <el-button type="primary" class="add-btn" @click="$router.push('/admin/products/add')">
+        <el-icon class="add-btn-icon"><Plus /></el-icon>
+        新增商品
+      </el-button>
     </div>
 
     <!-- 表格 -->
     <div class="table-card">
-      <el-table :data="list" stripe v-loading="loading">
-        <el-table-column label="图片" width="80">
+      <el-table :data="list" stripe v-loading="loading" class="product-table">
+        <el-table-column label="图片" width="100">
           <template #default="{ row }">
-            <img v-if="row.main_image" :src="row.main_image" class="product-thumb" />
-            <div v-else class="product-thumb-placeholder" />
+            <img v-if="row.main_image" :src="'/uploads/' + row.main_image" class="product-thumb" />
+            <div v-else class="product-thumb-placeholder">
+              <el-icon :size="20"><PictureFilled /></el-icon>
+            </div>
           </template>
         </el-table-column>
-        <el-table-column prop="name" label="名称" min-width="160" />
-        <el-table-column prop="category_name" label="分类" width="120" />
-        <el-table-column prop="price" label="价格" width="100">
+        <el-table-column prop="name" label="名称" min-width="140" show-overflow-tooltip />
+        <el-table-column prop="category_name" label="分类" width="100" />
+        <el-table-column prop="price" label="价格" width="130">
           <template #default="{ row }">
             <span class="price-text">¥{{ row.price }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="stock" label="库存" width="80" />
-        <el-table-column prop="status" label="状态" width="100">
+        <el-table-column prop="stock" label="库存" width="90" />
+        <el-table-column prop="status" label="状态" width="90">
           <template #default="{ row }">
             <el-switch
               :model-value="row.status === 1"
@@ -80,6 +85,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { Plus, PictureFilled } from '@element-plus/icons-vue'
 import * as adminApi from '@/api/admin'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
@@ -148,21 +154,24 @@ onMounted(async () => {
   font-family: system-ui, 'PingFang SC', 'Microsoft YaHei', sans-serif;
 }
 
+/* ====== 工具栏 ====== */
 .toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 24px;
+  gap: 16px;
 }
 
 .toolbar-left {
   display: flex;
   align-items: center;
   gap: 16px;
+  flex-wrap: wrap;
 }
 
 .toolbar-input {
-  width: 220px;
+  width: 240px;
 }
 
 .toolbar-select {
@@ -170,11 +179,17 @@ onMounted(async () => {
 }
 
 .add-btn {
-  height: 38px;
-  padding: 0 20px;
+  height: 40px;
+  padding: 0 24px;
   font-weight: 500;
+  font-size: 14px;
 }
 
+.add-btn-icon {
+  margin-right: 6px;
+}
+
+/* ====== 表格容器 ====== */
 .table-card {
   background: #fff;
   border-radius: 12px;
@@ -184,38 +199,53 @@ onMounted(async () => {
   overflow: hidden;
 }
 
+/* ====== 商品缩略图 ====== */
 .product-thumb {
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
   object-fit: cover;
   border-radius: 8px;
   border: 1px solid #f0ece5;
+  display: block;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.1);
+  }
 }
 
 .product-thumb-placeholder {
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
   border-radius: 8px;
   background: #faf8f5;
   border: 1px solid #f0ece5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #b8af9e;
 }
 
+/* ====== 价格 ====== */
 .price-text {
   color: #c0392b;
   font-weight: 600;
+  font-size: 14px;
 }
 
+/* ====== 分页 ====== */
 .pagination-wrap {
   display: flex;
   justify-content: flex-end;
-  margin-top: 16px;
+  margin-top: 20px;
 }
 
-/* 输入/选择框样式覆盖 */
+/* ====== 输入/选择框覆盖 ====== */
 :deep(.el-input__wrapper) {
   border-radius: 8px;
   border-color: #e8e3dc;
   box-shadow: 0 0 0 1px #e8e3dc inset;
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
 
   &.is-focus {
     border-color: #8B6914;
@@ -229,7 +259,7 @@ onMounted(async () => {
   }
 }
 
-/* 主按钮 */
+/* ====== 主按钮 ====== */
 :deep(.el-button--primary) {
   --el-button-bg-color: #8B6914;
   --el-button-border-color: #8B6914;
@@ -240,8 +270,8 @@ onMounted(async () => {
   border-radius: 8px;
 }
 
-/* 链接按钮 - 编辑 */
-.edit-btn:deep(.el-button) {
+/* ====== 链接按钮 - 编辑 ====== */
+:deep(.edit-btn) {
   color: #8B6914 !important;
 
   &:hover {
@@ -249,8 +279,8 @@ onMounted(async () => {
   }
 }
 
-/* 链接按钮 - 删除 */
-.delete-btn:deep(.el-button) {
+/* ====== 链接按钮 - 删除 ====== */
+:deep(.delete-btn) {
   color: #c0392b !important;
 
   &:hover {
@@ -258,8 +288,8 @@ onMounted(async () => {
   }
 }
 
-/* 表格去蓝化 */
-:deep(.el-table) {
+/* ====== 表格覆盖 ====== */
+:deep(.product-table) {
   --el-table-border-color: #f0ece5;
   border-radius: 8px;
 
@@ -270,28 +300,30 @@ onMounted(async () => {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    padding: 14px 16px;
+    padding: 16px;
     border-bottom: 1px solid #f0ece5;
   }
 
   .el-table__body td {
-    padding: 14px 16px;
+    padding: 16px;
     color: #2c2416;
     border-bottom: 1px solid #f0ece5;
+    font-size: 14px;
   }
 
   .el-table__body tr:hover > td {
     background: #fdf6e8;
+    transition: background 0.2s ease;
   }
 }
 
-/* 开关 */
+/* ====== 开关 ====== */
 :deep(.warm-switch) {
   --el-switch-on-color: #5b8c5a;
   --el-switch-off-color: #b8af9e;
 }
 
-/* 分页 */
+/* ====== 分页 ====== */
 :deep(.el-pagination) {
   --el-pagination-button-bg-color: #fff;
   --el-pagination-hover-color: #8B6914;
@@ -299,6 +331,23 @@ onMounted(async () => {
   .el-pager li.is-active {
     background-color: #8B6914;
     border-color: #8B6914;
+  }
+}
+
+/* ====== 响应式 ====== */
+@media (max-width: 768px) {
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .toolbar-left {
+    flex-direction: column;
+  }
+
+  .toolbar-input,
+  .toolbar-select {
+    width: 100%;
   }
 }
 </style>

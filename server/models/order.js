@@ -218,7 +218,7 @@ const orderModel = {
       `SELECT o.order_no, u.username, o.total_amount as amount, o.status, o.created_at as createdAt
        FROM orders o
        LEFT JOIN users u ON o.user_id = u.id
-       ORDER BY o.id DESC LIMIT ?`, [limit]
+       ORDER BY o.id DESC LIMIT ?`, [String(limit)]
     )
     return rows
   }

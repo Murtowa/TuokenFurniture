@@ -1,39 +1,42 @@
 <template>
   <div class="category-manage">
+    <!-- 顶部工具栏 -->
     <div class="toolbar">
-      <div class="section-title">分类管理</div>
-      <el-button type="primary" class="add-btn" @click="openDialog()">新增分类</el-button>
+      <h2 class="section-title">分类管理</h2>
+      <el-button type="primary" class="add-btn" @click="openDialog()">+ 新增分类</el-button>
     </div>
 
+    <!-- 表格 -->
     <div class="table-card">
       <el-table :data="list" stripe v-loading="loading">
         <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="name" label="名称" min-width="160" />
-        <el-table-column label="父级分类" width="150">
+        <el-table-column prop="name" label="分类名称" min-width="180" />
+        <el-table-column label="父级分类" width="160">
           <template #default="{ row }">
-            <span :class="{ 'parent-none': !parentName(row.parent_id) }">
-              {{ parentName(row.parent_id) || '无' }}
+            <span :class="{ 'parent-italic': !parentName(row.parent_id) }">
+              {{ parentName(row.parent_id) || '-' }}
             </span>
           </template>
         </el-table-column>
-        <el-table-column prop="sort_order" label="排序" width="80" />
-        <el-table-column label="操作" width="160">
+        <el-table-column prop="sort_order" label="排序" width="80" align="center" />
+        <el-table-column label="操作" width="180" align="center">
           <template #default="{ row }">
-            <el-button type="primary" link size="small" class="edit-btn" @click="openDialog(row)">编辑</el-button>
-            <el-button type="danger" link size="small" class="delete-btn" @click="handleDelete(row)">删除</el-button>
+            <el-button type="primary" link size="small" class="op-link op-edit" @click="openDialog(row)">编辑</el-button>
+            <span class="op-divider"></span>
+            <el-button type="primary" link size="small" class="op-link op-delete" @click="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
     </div>
 
-    <!-- 弹窗 -->
+    <!-- 新增/编辑弹窗 -->
     <el-dialog v-model="dialogVisible" :title="isEdit ? '编辑分类' : '新增分类'" width="480px" destroy-on-close>
-      <el-form ref="formRef" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="名称" prop="name">
+      <el-form ref="formRef" :model="form" :rules="rules" label-width="80px" class="cat-form">
+        <el-form-item label="分类名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入分类名称" />
         </el-form-item>
         <el-form-item label="父级分类">
-          <el-select v-model="form.parent_id" placeholder="请选择父级分类（可选）" clearable style="width:100%;">
+          <el-select v-model="form.parent_id" placeholder="请选择（可选）" clearable style="width:100%;">
             <el-option label="无" :value="null" />
             <el-option
               v-for="c in parentOptions"
@@ -43,13 +46,15 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="排序">
+        <el-form-item label="排序" prop="sort_order">
           <el-input-number v-model="form.sort_order" :min="0" class="sort-input" />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button class="cancel-btn" @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" :loading="submitting" class="confirm-btn" @click="handleSave">确定</el-button>
+        <div class="dialog-footer">
+          <el-button class="cancel-btn" @click="dialogVisible = false">取消</el-button>
+          <el-button type="primary" :loading="submitting" class="confirm-btn" @click="handleSave">确定</el-button>
+        </div>
       </template>
     </el-dialog>
   </div>
@@ -160,6 +165,7 @@ onMounted(fetchList)
   font-family: system-ui, 'PingFang SC', 'Microsoft YaHei', sans-serif;
 }
 
+/* ===== 顶部工具栏 ===== */
 .toolbar {
   display: flex;
   justify-content: space-between;
@@ -168,17 +174,20 @@ onMounted(fetchList)
 }
 
 .section-title {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
   color: #2c2416;
+  margin: 0;
 }
 
 .add-btn {
   height: 38px;
-  padding: 0 20px;
+  padding: 0 22px;
   font-weight: 500;
+  letter-spacing: 0.02em;
 }
 
+/* ===== 表格容器 ===== */
 .table-card {
   background: #fff;
   border-radius: 12px;
@@ -187,15 +196,38 @@ onMounted(fetchList)
   overflow: hidden;
 }
 
-.parent-none {
+/* 父级分类样式 */
+.parent-italic {
+  font-style: italic;
   color: #b8af9e;
 }
 
-.sort-input {
-  width: 160px;
+/* ===== 操作按钮区 ===== */
+.op-link {
+  font-size: 13px;
+  padding: 0;
+
+  &.op-edit {
+    color: #8B6914 !important;
+    &:hover { color: #a68b3c !important; }
+  }
+
+  &.op-delete {
+    color: #c0392b !important;
+    &:hover { color: #d94a3a !important; }
+  }
 }
 
-/* 表格去蓝化 */
+.op-divider {
+  display: inline-block;
+  width: 1px;
+  height: 14px;
+  background: #e8e3dc;
+  margin: 0 10px;
+  vertical-align: middle;
+}
+
+/* ===== 表格去蓝化 ===== */
 :deep(.el-table) {
   --el-table-border-color: #f0ece5;
   border-radius: 8px;
@@ -205,10 +237,9 @@ onMounted(fetchList)
     color: #8c8170;
     font-size: 13px;
     font-weight: 600;
-    text-transform: uppercase;
     letter-spacing: 0.04em;
     padding: 14px 16px;
-    border-bottom: 1px solid #f0ece5;
+    border-bottom: 2px solid #f0ece5;
   }
 
   .el-table__body td {
@@ -222,7 +253,7 @@ onMounted(fetchList)
   }
 }
 
-/* 主按钮 */
+/* ===== 主按钮 ===== */
 :deep(.el-button--primary) {
   --el-button-bg-color: #8B6914;
   --el-button-border-color: #8B6914;
@@ -231,9 +262,10 @@ onMounted(fetchList)
   --el-button-active-bg-color: #7a5b11;
   --el-button-active-border-color: #7a5b11;
   border-radius: 8px;
+  transition: all 0.2s ease;
 }
 
-/* 默认按钮 */
+/* ===== 默认按钮（取消等） ===== */
 :deep(.el-button:not(.el-button--primary)) {
   --el-button-border-color: #e8e3dc;
   --el-button-text-color: #8c8170;
@@ -241,63 +273,15 @@ onMounted(fetchList)
   --el-button-hover-text-color: #2c2416;
   --el-button-bg-color: #fff;
   border-radius: 8px;
+  transition: all 0.2s ease;
 }
 
-/* 链接按钮 - 编辑 */
-:deep(.edit-btn) {
-  color: #8B6914 !important;
-
-  &:hover {
-    color: #a68b3c !important;
-  }
-}
-
-/* 链接按钮 - 删除 */
-:deep(.delete-btn) {
-  color: #c0392b !important;
-
-  &:hover {
-    color: #d94a3a !important;
-  }
-}
-
-/* 对话框 */
-:deep(.el-dialog) {
-  border-radius: 12px;
-
-  .el-dialog__header {
-    border-bottom: 1px solid #f0ece5;
-    padding: 20px 24px;
-
-    .el-dialog__title {
-      font-size: 16px;
-      font-weight: 600;
-      color: #2c2416;
-    }
-  }
-
-  .el-dialog__body {
-    padding: 24px;
-  }
-
-  .el-dialog__footer {
-    border-top: 1px solid #f0ece5;
-    padding: 16px 24px;
-  }
-}
-
-/* 对话框内表单 */
-:deep(.el-form-item__label) {
-  font-size: 14px;
-  font-weight: 500;
-  color: #2c2416;
-  padding-bottom: 8px;
-}
-
+/* ===== 输入框 ===== */
 :deep(.el-input__wrapper) {
   border-radius: 8px;
   border-color: #e8e3dc;
   box-shadow: 0 0 0 1px #e8e3dc inset;
+  transition: all 0.2s ease;
 
   &.is-focus {
     border-color: #8B6914;
@@ -317,5 +301,59 @@ onMounted(fetchList)
     border-color: #e8e3dc;
     box-shadow: 0 0 0 1px #e8e3dc inset;
   }
+}
+
+.sort-input {
+  width: 160px;
+}
+
+/* ===== 弹窗 ===== */
+:deep(.el-dialog) {
+  border-radius: 12px;
+
+  .el-dialog__header {
+    border-bottom: 1px solid #f0ece5;
+    padding: 20px 24px;
+
+    .el-dialog__title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #2c2416;
+    }
+  }
+
+  .el-dialog__body {
+    padding: 24px;
+  }
+
+  .el-dialog__footer {
+    padding: 16px 24px;
+    border-top: 1px solid #f0ece5;
+  }
+}
+
+/* ===== 表单 ===== */
+.cat-form {
+  :deep(.el-form-item__label) {
+    font-size: 14px;
+    font-weight: 500;
+    color: #2c2416;
+    justify-content: flex-start;
+  }
+}
+
+/* 弹窗底部按钮 */
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.cancel-btn {
+  min-width: 80px;
+}
+
+.confirm-btn {
+  min-width: 80px;
 }
 </style>

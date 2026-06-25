@@ -19,7 +19,7 @@
               <div class="order-body">
                 <div class="order-products" v-if="order.items && order.items.length > 0">
                   <div v-for="item in order.items.slice(0, 3)" :key="item.id" class="order-product-item">
-                    <img :src="item.image || item.cover" alt="" class="order-product-img" />
+                    <img :src="'/uploads/' + (item.main_image || item.product_snapshot?.main_image)" alt="" class="order-product-img" />
                     <div class="order-product-info">
                       <span class="order-product-name">{{ item.name }}</span>
                       <span class="order-product-meta">&yen;{{ item.price }} x{{ item.quantity }}</span>
@@ -92,7 +92,7 @@
         <div v-if="currentOrder.items && currentOrder.items.length > 0" class="detail-section">
           <h4>商品列表</h4>
           <div v-for="item in currentOrder.items" :key="item.id" class="detail-item">
-            <img :src="item.image || item.cover" alt="" class="detail-item-img" />
+            <img :src="'/uploads/' + (item.main_image || item.product_snapshot?.main_image)" alt="" class="detail-item-img" />
             <div class="detail-item-info">
               <div class="detail-item-name">{{ item.name }}</div>
               <div class="detail-item-meta">

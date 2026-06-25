@@ -179,7 +179,7 @@ img { max-width: 100%; display: block; }
         transform: scaleX(0);
         transition: transform $transition-base;
       }
-      &.router-link-active {
+      &.router-link-exact-active {
         color: $color-text;
         &::after { transform: scaleX(1); }
       }
@@ -286,15 +286,18 @@ img { max-width: 100%; display: block; }
 
 .layout-admin {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 
   .admin-sidebar {
     width: 240px;
-    background: #1e1b16;
-    color: #a09888;
+    background: #f3efe8;
+    color: #8c8170;
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
+    border-right: 1px solid $color-border;
+    overflow-y: auto;
 
     .sidebar-logo {
       height: 68px;
@@ -303,9 +306,9 @@ img { max-width: 100%; display: block; }
       justify-content: center;
       font-size: 17px;
       font-weight: 700;
-      color: #d4c9b8;
+      color: $color-text;
       letter-spacing: 0.04em;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
+      border-bottom: 1px solid $color-border;
     }
 
     :deep(.el-menu) {
@@ -313,7 +316,7 @@ img { max-width: 100%; display: block; }
       background: transparent;
 
       .el-menu-item {
-        color: #a09888;
+        color: #8c8170;
         margin: 4px 12px;
         border-radius: $radius-sm;
         height: 44px;
@@ -323,12 +326,12 @@ img { max-width: 100%; display: block; }
         letter-spacing: 0.02em;
 
         &:hover {
-          background: rgba(255,255,255,0.06);
-          color: #d4c9b8;
+          background: rgba(139, 105, 20, 0.06);
+          color: $color-text;
         }
         &.is-active {
-          background: rgba(139, 105, 20, 0.2);
-          color: #c8a94e;
+          background: rgba(139, 105, 20, 0.1);
+          color: $color-primary;
           font-weight: 600;
         }
 
@@ -343,6 +346,7 @@ img { max-width: 100%; display: block; }
     flex-direction: column;
     background: $color-bg;
     min-width: 0;
+    overflow: hidden;
 
     .admin-header {
       height: 68px;
@@ -357,11 +361,13 @@ img { max-width: 100%; display: block; }
       font-weight: 600;
       color: $color-text;
       letter-spacing: 0.02em;
+      flex-shrink: 0;
     }
 
     .admin-content {
       padding: 28px;
       flex: 1;
+      overflow-y: auto;
     }
   }
 }
@@ -413,8 +419,21 @@ img { max-width: 100%; display: block; }
 .el-pagination {
   --el-pagination-bg-color: #{$color-surface};
   --el-pagination-button-bg-color: #{$color-surface};
-  .el-pager li.is-active {
-    background: $color-primary  !important;
+  --el-pagination-hover-color: #{$color-primary};
+  --el-pagination-active-bg-color: #{$color-primary};
+  --el-pagination-active-color: #fff;
+
+  .el-pager li {
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    &.is-active {
+      background: $color-primary  !important;
+      color: #fff !important;
+      font-weight: 600;
+    }
+    &:hover:not(.is-active) {
+      color: $color-primary;
+    }
   }
 }
 

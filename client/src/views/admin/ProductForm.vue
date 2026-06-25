@@ -32,9 +32,14 @@
             :on-change="handleMainImageChange"
             accept="image/*"
           >
-            <img v-if="form.main_image" :src="form.main_image" class="main-image-preview" />
+            <img
+              v-if="form.main_image"
+              :src="form.main_image.startsWith('/uploads') ? form.main_image : '/uploads/' + form.main_image"
+              class="main-image-preview"
+            />
             <div v-else class="main-upload-placeholder">
-              <el-icon class="upload-icon"><Plus /></el-icon>
+              <el-icon :size="28" class="upload-icon"><Plus /></el-icon>
+              <span class="upload-hint">点击上传</span>
             </div>
           </el-upload>
         </el-form-item>
@@ -51,10 +56,10 @@
             :on-preview="handlePreview"
             :on-remove="handleRemove"
           >
-            <el-icon><Plus /></el-icon>
+            <el-icon :size="20"><Plus /></el-icon>
           </el-upload>
           <el-dialog v-model="previewVisible" title="图片预览" width="600px">
-            <img :src="previewUrl" style="width:100%;" />
+            <img :src="previewUrl" style="width:100%;border-radius:8px;" />
           </el-dialog>
         </el-form-item>
 
@@ -64,8 +69,8 @@
 
         <el-form-item>
           <div class="form-actions">
-            <el-button type="primary" :loading="submitting" class="save-btn" @click="handleSave">保存</el-button>
             <el-button class="cancel-btn" @click="$router.back()">取消</el-button>
+            <el-button type="primary" :loading="submitting" class="save-btn" @click="handleSave">保存</el-button>
           </div>
         </el-form-item>
       </el-form>
@@ -77,6 +82,7 @@
 import { reactive, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { Plus } from '@element-plus/icons-vue'
 import * as adminApi from '@/api/admin'
 import { getCategories, getProductDetail } from '@/api/product'
 import { uploadFile } from '@/api/user'
@@ -202,35 +208,60 @@ onMounted(async () => {
 <style lang="scss" scoped>
 .product-form {
   font-family: system-ui, 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  max-width: 800px;
+  display: flex;
+  justify-content: center;
+  padding: 8px 0;
 }
 
+/* ====== 表单卡片 ====== */
 .form-card {
   background: #fff;
   border-radius: 12px;
-  padding: 32px;
+  padding: 40px 48px;
   border: 1px solid #f0ece5;
   box-shadow: 0 1px 4px rgba(44, 36, 22, 0.04);
+  width: 100%;
+  max-width: 720px;
 }
 
+/* ====== 表单项间距 ====== */
+:deep(.el-form-item) {
+  margin-bottom: 32px;
+
+  &:last-of-type {
+    margin-bottom: 0;
+  }
+}
+
+:deep(.el-form-item__label) {
+  font-size: 14px;
+  font-weight: 500;
+  color: #2c2416;
+  padding-bottom: 6px;
+}
+
+/* ====== 数字输入 ====== */
 .number-input {
   width: 200px;
 }
 
+/* ====== 主图上传 ====== */
 .main-upload {
   :deep(.el-upload) {
-    border: 1px dashed #e8e3dc;
-    border-radius: 8px;
+    border: 2px dashed #e8e3dc;
+    border-radius: 12px;
     cursor: pointer;
     width: 120px;
     height: 120px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: border-color 0.2s ease;
+    transition: all 0.25s ease;
+    overflow: hidden;
 
     &:hover {
       border-color: #8B6914;
+      border-style: solid;
     }
   }
 }
@@ -239,11 +270,17 @@ onMounted(async () => {
   width: 120px;
   height: 120px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 6px;
 
   .upload-icon {
-    font-size: 28px;
+    color: #b8af9e;
+  }
+
+  .upload-hint {
+    font-size: 12px;
     color: #b8af9e;
   }
 }
@@ -253,37 +290,41 @@ onMounted(async () => {
   height: 100px;
   object-fit: cover;
   border-radius: 8px;
+  transition: transform 0.25s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
 }
 
+/* ====== 按钮区 ====== */
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
+  gap: 16px;
   width: 100%;
 }
 
 .save-btn {
-  height: 38px;
-  padding: 0 28px;
+  height: 42px;
+  padding: 0 36px;
+  font-size: 14px;
+  font-weight: 500;
+  min-width: 140px;
 }
 
 .cancel-btn {
-  height: 38px;
-  padding: 0 20px;
-}
-
-/* 表单元素覆盖 */
-:deep(.el-form-item__label) {
+  height: 42px;
+  padding: 0 24px;
   font-size: 14px;
-  font-weight: 500;
-  color: #2c2416;
-  padding-bottom: 8px;
 }
 
+/* ====== 输入框/选择器覆盖 ====== */
 :deep(.el-input__wrapper) {
   border-radius: 8px;
   border-color: #e8e3dc;
   box-shadow: 0 0 0 1px #e8e3dc inset;
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
 
   &.is-focus {
     border-color: #8B6914;
@@ -294,6 +335,7 @@ onMounted(async () => {
 :deep(.el-textarea__inner) {
   border-radius: 8px;
   border-color: #e8e3dc;
+  transition: border-color 0.25s ease;
 
   &:focus {
     border-color: #8B6914;
@@ -314,7 +356,7 @@ onMounted(async () => {
   }
 }
 
-/* 主按钮 */
+/* ====== 主按钮 ====== */
 :deep(.el-button--primary) {
   --el-button-bg-color: #8B6914;
   --el-button-border-color: #8B6914;
@@ -325,7 +367,7 @@ onMounted(async () => {
   border-radius: 8px;
 }
 
-/* 默认按钮 */
+/* ====== 默认按钮(取消) ====== */
 :deep(.el-button:not(.el-button--primary)) {
   --el-button-border-color: #e8e3dc;
   --el-button-text-color: #8c8170;
@@ -335,26 +377,38 @@ onMounted(async () => {
   border-radius: 8px;
 }
 
-/* 上传组件 */
+/* ====== 上传列表项 ====== */
 :deep(.el-upload-list--picture-card) {
   .el-upload-list__item {
     border-radius: 8px;
     border: 1px solid #e8e3dc;
+    transition: border-color 0.25s ease;
+
+    &:hover {
+      border-color: #8B6914;
+    }
+  }
+
+  .el-upload-list__item-thumbnail {
+    border-radius: 6px;
   }
 }
 
+/* ====== 上传按钮区域 ====== */
 :deep(.el-upload--picture-card) {
-  border-radius: 8px;
-  border: 1px dashed #e8e3dc;
+  border-radius: 10px;
+  border: 2px dashed #e8e3dc;
   background: transparent;
+  transition: all 0.25s ease;
 
   &:hover {
     border-color: #8B6914;
+    border-style: solid;
     color: #8B6914;
   }
 }
 
-/* 开关 */
+/* ====== 开关 ====== */
 :deep(.warm-switch) {
   --el-switch-on-color: #5b8c5a;
   --el-switch-off-color: #b8af9e;

@@ -31,9 +31,8 @@
               <el-table-column label="商品" min-width="400">
                 <template #default="{ row }">
                   <div class="product-cell" @click="goToProduct(row)">
-                    <el-image
+                    <img
                       :src="`/uploads/${row.main_image || row.image}`"
-                      fit="cover"
                       class="product-thumb"
                     />
                     <div class="product-info">

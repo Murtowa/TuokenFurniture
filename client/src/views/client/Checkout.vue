@@ -41,7 +41,7 @@
           </div>
           <div class="items-list">
             <div v-for="item in cartItems" :key="item.id" class="order-item">
-              <img :src="item.image || item.cover" alt="" class="item-img" />
+              <img :src="'/uploads/' + (item.main_image || item.image)" alt="" class="item-img" />
               <div class="item-info">
                 <div class="item-name">{{ item.name }}</div>
                 <div class="item-price-qty">

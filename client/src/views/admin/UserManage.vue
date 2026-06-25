@@ -4,7 +4,7 @@
     <div class="toolbar">
       <el-input
         v-model="keyword"
-        placeholder="搜索用户名/昵称"
+        placeholder="搜索用户名 / 昵称"
         clearable
         class="toolbar-input"
         @keyup.enter="fetchList"
@@ -16,22 +16,31 @@
     <div class="table-card">
       <el-table :data="list" stripe v-loading="loading">
         <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="username" label="用户名" width="140" />
-        <el-table-column prop="nickname" label="昵称" min-width="140" />
-        <el-table-column prop="phone" label="手机号" width="140" />
-        <el-table-column prop="status" label="状态" width="100">
+        <el-table-column label="用户" min-width="160">
           <template #default="{ row }">
-            <span class="status-tag" :class="row.status === 1 ? 'status-enabled' : 'status-disabled'">
+            <div class="user-cell">
+              <span class="avatar-circle">{{ row.username.charAt(0).toUpperCase() }}</span>
+              <div class="user-info">
+                <span class="user-name">{{ row.username }}</span>
+                <span v-if="row.nickname" class="user-nick">{{ row.nickname }}</span>
+              </div>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="phone" label="手机号" width="155" />
+        <el-table-column prop="status" label="状态" width="110">
+          <template #default="{ row }">
+            <span class="status-pill" :class="row.status === 1 ? 'pill-enabled' : 'pill-disabled'">
               {{ row.status === 1 ? '正常' : '禁用' }}
             </span>
           </template>
         </el-table-column>
-        <el-table-column prop="created_at" label="注册时间" min-width="170" />
-        <el-table-column label="操作" width="120">
+        <el-table-column prop="created_at" label="注册时间" min-width="140" />
+        <el-table-column label="操作" width="120" align="center">
           <template #default="{ row }">
             <el-button
               v-if="row.status === 1"
-              class="disable-btn"
+              class="btn-disable-outline"
               size="small"
               @click="handleToggle(row)"
             >
@@ -39,8 +48,8 @@
             </el-button>
             <el-button
               v-else
-              type="primary" link size="small"
-              class="enable-btn"
+              class="btn-enable-outline"
+              size="small"
               @click="handleToggle(row)"
             >
               启用
@@ -113,6 +122,7 @@ onMounted(fetchList)
   font-family: system-ui, 'PingFang SC', 'Microsoft YaHei', sans-serif;
 }
 
+/* ===== 搜索工具栏 ===== */
 .toolbar {
   display: flex;
   align-items: center;
@@ -120,9 +130,10 @@ onMounted(fetchList)
 }
 
 .toolbar-input {
-  width: 260px;
+  width: 300px;
 }
 
+/* ===== 表格容器 ===== */
 .table-card {
   background: #fff;
   border-radius: 12px;
@@ -131,62 +142,75 @@ onMounted(fetchList)
   overflow: hidden;
 }
 
-/* 状态标签 */
-.status-tag {
+/* ===== 用户头像列 ===== */
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #fdf6e8;
+  color: #8B6914;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+  border: 1px solid #f0ece5;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.user-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: #2c2416;
+}
+
+.user-nick {
+  font-size: 12px;
+  color: #b8af9e;
+}
+
+/* ===== 状态标签 pill ===== */
+.status-pill {
   display: inline-block;
-  padding: 2px 10px;
-  border-radius: 4px;
+  padding: 3px 12px;
+  border-radius: 12px;
   font-size: 12px;
   font-weight: 500;
+  white-space: nowrap;
 
-  &.status-enabled {
+  &.pill-enabled {
     color: #5b8c5a;
     background: #f0f9eb;
   }
 
-  &.status-disabled {
+  &.pill-disabled {
     color: #c0392b;
     background: #fef0f0;
   }
 }
 
-/* 表格去蓝化 */
-:deep(.el-table) {
-  --el-table-border-color: #f0ece5;
-  border-radius: 8px;
-
-  .el-table__header th {
-    background: #faf8f5;
-    color: #8c8170;
-    font-size: 13px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    padding: 14px 16px;
-    border-bottom: 1px solid #f0ece5;
-  }
-
-  .el-table__body td {
-    padding: 14px 16px;
-    color: #2c2416;
-    border-bottom: 1px solid #f0ece5;
-  }
-
-  .el-table__body tr:hover > td {
-    background: #fdf6e8;
-  }
-}
-
-/* 启用按钮（轮廓样式） */
-.disable-btn {
+/* ===== 操作按钮 outline 样式 ===== */
+.btn-disable-outline {
   border-radius: 8px;
   border: 1px solid #e8e3dc;
   background: #fff;
   color: #8c8170;
   font-size: 13px;
-  padding: 4px 14px;
+  padding: 5px 16px;
   height: auto;
-  min-height: 30px;
+  min-height: 32px;
   transition: all 0.2s ease;
 
   &:hover {
@@ -196,21 +220,57 @@ onMounted(fetchList)
   }
 }
 
-/* 启用文本按钮 */
-.enable-btn:deep(.el-button) {
-  color: #8B6914 !important;
+.btn-enable-outline {
+  border-radius: 8px;
+  border: 1px solid #e8e3dc;
+  background: #fff;
+  color: #8c8170;
   font-size: 13px;
+  padding: 5px 16px;
+  height: auto;
+  min-height: 32px;
+  transition: all 0.2s ease;
 
   &:hover {
-    color: #a68b3c !important;
+    border-color: #5b8c5a;
+    color: #5b8c5a;
+    background: #f0f9eb;
   }
 }
 
-/* 输入框 */
+/* ===== 表格去蓝化 ===== */
+:deep(.el-table) {
+  --el-table-border-color: #f0ece5;
+  border-radius: 8px;
+
+  .el-table__header th {
+    background: #faf8f5;
+    color: #8c8170;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 14px 16px;
+    border-bottom: 2px solid #f0ece5;
+  }
+
+  .el-table__body td {
+    padding: 14px 16px;
+    color: #2c2416;
+    border-bottom: 1px solid #f0ece5;
+    vertical-align: middle;
+  }
+
+  .el-table__body tr:hover > td {
+    background: #fdf6e8;
+  }
+}
+
+/* ===== 输入框 ===== */
 :deep(.el-input__wrapper) {
   border-radius: 8px;
   border-color: #e8e3dc;
   box-shadow: 0 0 0 1px #e8e3dc inset;
+  transition: all 0.2s ease;
 
   &:hover {
     border-color: #a68b3c;
@@ -222,7 +282,13 @@ onMounted(fetchList)
   }
 }
 
-/* 分页 */
+/* ===== 分页 ===== */
+.pagination-wrap {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
 :deep(.el-pagination) {
   --el-pagination-hover-color: #8B6914;
 
@@ -235,11 +301,5 @@ onMounted(fetchList)
   .btn-next {
     border-radius: 8px;
   }
-}
-
-.pagination-wrap {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 16px;
 }
 </style>
