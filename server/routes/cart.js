@@ -26,7 +26,7 @@ router.put('/:id', async (req, res, next) => {
   try {
     const { quantity } = req.body
     if (!quantity || quantity < 1) return res.status(400).json(fail('数量至少为1'))
-    await cartModel.updateQuantity(parseInt(req.params.id), parseInt(quantity))
+    await cartModel.updateQuantity(parseInt(req.params.id), req.user.userId, parseInt(quantity))
     const items = await cartModel.findByUser(req.user.userId)
     res.json(ok(items, '更新成功'))
   } catch (err) { next(err) }
@@ -34,7 +34,7 @@ router.put('/:id', async (req, res, next) => {
 
 router.delete('/:id', async (req, res, next) => {
   try {
-    await cartModel.removeItem(parseInt(req.params.id))
+    await cartModel.removeItem(parseInt(req.params.id), req.user.userId)
     const items = await cartModel.findByUser(req.user.userId)
     res.json(ok(items, '删除成功'))
   } catch (err) { next(err) }

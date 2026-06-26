@@ -162,12 +162,16 @@ async function handleCancel(order) {
   }
 }
 
-function handleConfirmReceive(order) {
-  ElMessageBox.confirm('确认已收到商品？', '确认收货', { type: 'success' })
-    .then(() => {
-      ElMessage.info('确认收货功能开发中，敬请期待')
-    })
-    .catch(() => {})
+async function handleConfirmReceive(order) {
+  try {
+    await ElMessageBox.confirm('确认已收到商品？', '确认收货', { type: 'success' })
+    await orderApi.confirmOrder(order.id)
+    ElMessage.success('已确认收货')
+    order.status = 'completed'
+    await ordersStore.fetchOrders(currentPage.value)
+  } catch {
+    // cancelled or failed
+  }
 }
 
 async function showOrderDetail(order) {

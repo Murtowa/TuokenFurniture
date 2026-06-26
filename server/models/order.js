@@ -108,6 +108,17 @@ const orderModel = {
     }
   },
 
+  async confirmReceipt(orderId, userId) {
+    const order = await this.findById(orderId, userId)
+    if (!order) throw Object.assign(new Error('订单不存在'), { status: 404 })
+    if (order.status !== 'shipped') {
+      throw Object.assign(new Error('仅可确认已发货的订单'), { status: 400 })
+    }
+    await pool.execute(
+      "UPDATE orders SET status = 'completed' WHERE id = ?", [orderId]
+    )
+  },
+
   async adminFindAll({ page = 1, pageSize = 20, status, orderNo }) {
     let where = 'WHERE 1=1'
     const params = []

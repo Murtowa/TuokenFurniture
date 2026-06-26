@@ -82,4 +82,11 @@ router.put('/:id/cancel', async (req, res, next) => {
   } catch (err) { next(err) }
 })
 
+router.put('/:id/complete', async (req, res, next) => {
+  try {
+    await orderModel.confirmReceipt(req.params.id, req.user.userId)
+    res.json(ok(null, '已确认收货'))
+  } catch (err) { next(err) }
+})
+
 module.exports = router

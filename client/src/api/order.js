@@ -15,3 +15,7 @@ export function getOrderDetail(id) {
 export function cancelOrder(id) {
   return request.put(`/orders/${id}/cancel`)
 }
+
+export function confirmOrder(id) {
+  return request.put(`/orders/${id}/complete`)
+}

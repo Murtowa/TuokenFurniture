@@ -29,12 +29,18 @@ const cartModel = {
     }
   },
 
-  async updateQuantity(id, quantity) {
-    await pool.execute('UPDATE cart_items SET quantity = ? WHERE id = ?', [quantity, id])
+  async updateQuantity(id, userId, quantity) {
+    await pool.execute(
+      'UPDATE cart_items SET quantity = ? WHERE id = ? AND user_id = ?',
+      [quantity, id, userId]
+    )
   },
 
-  async removeItem(id) {
-    await pool.execute('DELETE FROM cart_items WHERE id = ?', [id])
+  async removeItem(id, userId) {
+    await pool.execute(
+      'DELETE FROM cart_items WHERE id = ? AND user_id = ?',
+      [id, userId]
+    )
   },
 
   async clearByUser(userId) {
