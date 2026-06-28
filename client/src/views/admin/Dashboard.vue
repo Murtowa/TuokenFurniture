@@ -92,10 +92,9 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, watch, nextTick } from 'vue'
+import { ref, reactive, onMounted, nextTick } from 'vue'
 import { Goods, Document, Money, UserFilled } from '@element-plus/icons-vue'
 import * as adminApi from '@/api/admin'
-import * as echarts from 'echarts'
 
 const trendChartRef = ref(null)
 const pieChartRef = ref(null)
@@ -107,108 +106,104 @@ const orderTrend = ref([])
 const categoryDistribution = ref([])
 const recentOrders = ref([])
 const loadError = ref(false)
+const chartsReady = ref(false)
 
 function statusLabel(s) {
   const map = { pending: '待支付', paid: '已支付', shipped: '已发货', completed: '已完成', cancelled: '已取消' }
   return map[s] || s
 }
 
-function initTrendChart() {
-  if (!trendChartRef.value) return
-  trendChart = echarts.init(trendChartRef.value)
-  trendChart.setOption({
-    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
-    legend: {
-      data: ['订单数', '金额'],
-      bottom: 0,
-      textStyle: { color: '#8c8170' }
-    },
-    grid: { left: 60, right: 60, top: 40, bottom: 36 },
-    xAxis: {
-      type: 'category',
-      data: orderTrend.value.map(i => i.date),
-      axisLine: { lineStyle: { color: '#e8e3dc' } },
-      axisTick: { lineStyle: { color: '#e8e3dc' } },
-      axisLabel: { color: '#8c8170' }
-    },
-    yAxis: [
-      {
-        type: 'value', name: '订单数', minInterval: 1,
-        nameTextStyle: { color: '#8c8170' },
-        axisLabel: { color: '#8c8170' },
-        splitLine: { lineStyle: { color: '#f0ece5' } }
-      },
-      {
-        type: 'value', name: '金额(¥)',
-        nameTextStyle: { color: '#8c8170' },
-        axisLabel: { color: '#8c8170' },
-        splitLine: { show: false }
-      }
-    ],
-    series: [
-      {
-        name: '订单数', type: 'line', data: orderTrend.value.map(i => i.count),
-        smooth: true,
-        lineStyle: { color: '#8B6914', width: 2 },
-        itemStyle: { color: '#8B6914' },
-        areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-          { offset: 0, color: 'rgba(139,105,20,0.12)' },
-          { offset: 1, color: 'rgba(139,105,20,0)' }
-        ]) },
-        symbol: 'circle',
-        symbolSize: 6
-      },
-      {
-        name: '金额', type: 'line', yAxisIndex: 1,
-        data: orderTrend.value.map(i => i.amount),
-        smooth: true,
-        lineStyle: { color: '#c17817', width: 2 },
-        itemStyle: { color: '#c17817' },
-        areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-          { offset: 0, color: 'rgba(193,120,23,0.12)' },
-          { offset: 1, color: 'rgba(193,120,23,0)' }
-        ]) },
-        symbol: 'circle',
-        symbolSize: 6
-      }
-    ]
-  })
-}
+async function initCharts() {
+  if (chartsReady.value) return
+  const echarts = await import('echarts')
+  chartsReady.value = true
 
-function initPieChart() {
-  if (!pieChartRef.value) return
-  pieChart = echarts.init(pieChartRef.value)
-  const colors = ['#8B6914', '#c17817', '#a68b3c', '#d4aa40', '#b8af9e']
-  pieChart.setOption({
-    color: colors,
-    tooltip: { trigger: 'item' },
-    legend: {
-      orient: 'vertical',
-      right: 10,
-      top: 'center',
-      textStyle: { color: '#8c8170' }
-    },
-    series: [{
-      type: 'pie',
-      radius: ['40%', '70%'],
-      center: ['40%', '50%'],
-      label: { show: false },
-      itemStyle: {
-        borderColor: '#fff',
-        borderWidth: 2
+  if (trendChartRef.value) {
+    trendChart = echarts.init(trendChartRef.value)
+    trendChart.setOption({
+      tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
+      legend: {
+        data: ['订单数', '金额'],
+        bottom: 0,
+        textStyle: { color: '#8c8170' }
       },
-      data: categoryDistribution.value.map(i => ({ name: i.name, value: i.count }))
-    }]
-  })
-}
+      grid: { left: 60, right: 60, top: 40, bottom: 36 },
+      xAxis: {
+        type: 'category',
+        data: orderTrend.value.map(i => i.date),
+        axisLine: { lineStyle: { color: '#e8e3dc' } },
+        axisTick: { lineStyle: { color: '#e8e3dc' } },
+        axisLabel: { color: '#8c8170' }
+      },
+      yAxis: [
+        {
+          type: 'value', name: '订单数', minInterval: 1,
+          nameTextStyle: { color: '#8c8170' },
+          axisLabel: { color: '#8c8170' },
+          splitLine: { lineStyle: { color: '#f0ece5' } }
+        },
+        {
+          type: 'value', name: '金额(¥)',
+          nameTextStyle: { color: '#8c8170' },
+          axisLabel: { color: '#8c8170' },
+          splitLine: { show: false }
+        }
+      ],
+      series: [
+        {
+          name: '订单数', type: 'line', data: orderTrend.value.map(i => i.count),
+          smooth: true,
+          lineStyle: { color: '#8B6914', width: 2 },
+          itemStyle: { color: '#8B6914' },
+          areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: 'rgba(139,105,20,0.12)' },
+            { offset: 1, color: 'rgba(139,105,20,0)' }
+          ]) },
+          symbol: 'circle',
+          symbolSize: 6
+        },
+        {
+          name: '金额', type: 'line', yAxisIndex: 1,
+          data: orderTrend.value.map(i => i.amount),
+          smooth: true,
+          lineStyle: { color: '#c17817', width: 2 },
+          itemStyle: { color: '#c17817' },
+          areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: 'rgba(193,120,23,0.12)' },
+            { offset: 1, color: 'rgba(193,120,23,0)' }
+          ]) },
+          symbol: 'circle',
+          symbolSize: 6
+        }
+      ]
+    })
+  }
 
-function updateCharts() {
-  nextTick(() => {
-    if (trendChart) trendChart.dispose()
-    if (pieChart) pieChart.dispose()
-    initTrendChart()
-    initPieChart()
-  })
+  if (pieChartRef.value) {
+    pieChart = echarts.init(pieChartRef.value)
+    const colors = ['#8B6914', '#c17817', '#a68b3c', '#d4aa40', '#b8af9e']
+    pieChart.setOption({
+      color: colors,
+      tooltip: { trigger: 'item' },
+      legend: {
+        orient: 'vertical',
+        right: 10,
+        top: 'center',
+        textStyle: { color: '#8c8170' }
+      },
+      series: [{
+        type: 'pie',
+        radius: ['40%', '70%'],
+        center: ['40%', '50%'],
+        label: { show: false },
+        itemStyle: {
+          borderColor: '#fff',
+          borderWidth: 2
+        },
+        data: categoryDistribution.value.map(i => ({ name: i.name, value: i.count }))
+      }]
+    })
+  }
 }
 
 onMounted(async () => {
@@ -218,13 +213,11 @@ onMounted(async () => {
     orderTrend.value = data.orderTrend || []
     categoryDistribution.value = data.categoryDistribution || []
     recentOrders.value = data.recentOrders || []
-    updateCharts()
+    nextTick(() => initCharts())
   } catch {
     loadError.value = true
   }
 })
-
-watch([orderTrend, categoryDistribution], updateCharts)
 </script>
 
 <style lang="scss" scoped>
