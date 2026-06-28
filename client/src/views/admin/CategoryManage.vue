@@ -36,6 +36,23 @@
       </el-table>
     </div>
 
+    <!-- 批量删除确认弹窗 -->
+    <el-dialog v-model="deleteDialogVisible" title="批量删除分类" width="440px" destroy-on-close>
+      <div class="delete-confirm-body">
+        <p class="delete-warning">确定删除以下 <b>{{ selectedRows.length }}</b> 个分类？此操作不可恢复。</p>
+        <div class="delete-cat-list">
+          <div v-for="row in selectedRows" :key="row.id" class="delete-cat-item">
+            <span class="delete-cat-name">{{ row.name }}</span>
+            <span v-if="parentName(row.parent_id)" class="delete-cat-parent">父级：{{ parentName(row.parent_id) }}</span>
+          </div>
+        </div>
+      </div>
+      <template #footer>
+        <el-button @click="deleteDialogVisible = false">取消</el-button>
+        <el-button type="danger" :loading="deleting" @click="confirmBatchDelete">确认删除</el-button>
+      </template>
+    </el-dialog>
+
     <!-- 新增/编辑弹窗 -->
     <el-dialog v-model="dialogVisible" :title="isEdit ? '编辑分类' : '新增分类'" width="480px" destroy-on-close>
       <el-form ref="formRef" :model="form" :rules="rules" label-width="80px" class="cat-form">
@@ -75,6 +92,8 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 const list = ref([])
 const loading = ref(false)
 const selectedRows = ref([])
+const deleteDialogVisible = ref(false)
+const deleting = ref(false)
 const dialogVisible = ref(false)
 const isEdit = ref(false)
 const editId = ref(null)
@@ -180,15 +199,21 @@ async function handleDelete(row) {
   }
 }
 
-async function batchDelete() {
-  await ElMessageBox.confirm(`确定删除选中的 ${selectedRows.value.length} 个分类？`, '批量删除', { type: 'warning' })
+function batchDelete() {
+  deleteDialogVisible.value = true
+}
+
+async function confirmBatchDelete() {
+  deleting.value = true
   try {
     const ids = selectedRows.value.map(r => r.id)
     const res = await adminApi.adminBatchDeleteCategories({ ids })
     ElMessage.success(res.message || '删除成功')
     selectedRows.value = []
+    deleteDialogVisible.value = false
     fetchList()
   } catch { /* handled by interceptor */ }
+  finally { deleting.value = false }
 }
 
 onMounted(fetchList)
@@ -215,6 +240,41 @@ onMounted(fetchList)
   font-size: 14px;
   font-weight: 600;
   color: #8B6914;
+}
+
+/* ===== 批量删除确认弹窗 ===== */
+.delete-confirm-body {
+  .delete-warning {
+    margin-bottom: 16px;
+    color: #2c2416;
+    font-size: 15px;
+    b { color: #c0392b; }
+  }
+
+  .delete-cat-list {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #f0ece5;
+    border-radius: 8px;
+  }
+
+  .delete-cat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    font-size: 14px;
+    & + & { border-top: 1px solid #f0ece5; }
+
+    .delete-cat-name {
+      color: #2c2416;
+      font-weight: 500;
+    }
+    .delete-cat-parent {
+      color: #b8af9e;
+      font-size: 13px;
+    }
+  }
 }
 
 /* ===== 顶部工具栏 ===== */
@@ -324,7 +384,7 @@ onMounted(fetchList)
   --el-button-hover-border-color: #b8af9e;
   --el-button-hover-text-color: #2c2416;
   --el-button-bg-color: #fff;
-  border-radius: 8px;
+  border-radius: 3px;
   transition: all 0.2s ease;
 }
 
