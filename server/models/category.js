@@ -76,12 +76,14 @@ const categoryModel = {
       }
     }
 
+    let deleted = 0
     if (toDelete.length > 0) {
       const delPlaceholders = toDelete.map(() => '?').join(',')
-      await pool.execute(`DELETE FROM categories WHERE id IN (${delPlaceholders})`, toDelete)
+      const [delResult] = await pool.execute(`DELETE FROM categories WHERE id IN (${delPlaceholders})`, toDelete)
+      deleted = delResult.affectedRows
     }
 
-    return { deleted: toDelete.length, blocked }
+    return { deleted, blocked }
   },
 
   async getTree() {
