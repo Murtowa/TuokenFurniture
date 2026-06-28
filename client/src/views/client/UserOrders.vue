@@ -151,8 +151,9 @@ async function handleCancel(order) {
   cancellingId.value = order.id
   try {
     await ordersStore.cancel(order.id)
-    ElMessage.success('订单已取消')
     order.status = 'cancelled'
+    await ordersStore.fetchOrders(currentPage.value)
+    ElMessage.success('订单已取消')
   } catch {
     ElMessage.error('取消失败')
   } finally {

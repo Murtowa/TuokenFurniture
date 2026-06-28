@@ -191,8 +191,9 @@ async function fetchList() {
 async function handleAction(row, newStatus) {
   try {
     await adminApi.adminUpdateOrderStatus(row.id, { status: newStatus })
+    row.status = newStatus
+    if (detail.value && detail.value.id === row.id) detail.value.status = newStatus
     ElMessage.success('操作成功')
-    fetchList()
   } catch { /* handled by interceptor */ }
 }
 
