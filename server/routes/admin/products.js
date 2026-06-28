@@ -25,21 +25,7 @@ router.post('/products', async (req, res, next) => {
   } catch (err) { next(err) }
 })
 
-router.put('/products/:id', async (req, res, next) => {
-  try {
-    await productModel.update(req.params.id, req.body)
-    res.json(ok(null, '更新成功'))
-  } catch (err) { next(err) }
-})
-
-router.delete('/products/:id', async (req, res, next) => {
-  try {
-    await productModel.delete(req.params.id)
-    res.json(ok(null, '删除成功'))
-  } catch (err) { next(err) }
-})
-
-// 批量路由
+// 批量路由 — 必须在 /:id 之前注册，否则 batch-status 会被 :id 匹配
 router.put('/products/batch-status', async (req, res, next) => {
   try {
     const { ids, status } = req.body
@@ -80,6 +66,20 @@ router.post('/products/batch-delete', async (req, res, next) => {
     }
     const result = await productModel.batchDelete(ids)
     res.json(ok(result, `已删除 ${result.affected} 个商品`))
+  } catch (err) { next(err) }
+})
+
+router.put('/products/:id', async (req, res, next) => {
+  try {
+    await productModel.update(req.params.id, req.body)
+    res.json(ok(null, '更新成功'))
+  } catch (err) { next(err) }
+})
+
+router.delete('/products/:id', async (req, res, next) => {
+  try {
+    await productModel.delete(req.params.id)
+    res.json(ok(null, '删除成功'))
   } catch (err) { next(err) }
 })
 
