@@ -13,10 +13,10 @@
     </div>
 
     <!-- 批量操作栏 -->
-    <div v-if="selectedRows.length > 0" class="batch-bar">
-      <span class="batch-label">当前页已选 {{ selectedRows.length }} 项</span>
-      <el-button size="small" @click="batchStatus(1)">批量启用</el-button>
-      <el-button size="small" @click="batchStatus(0)">批量禁用</el-button>
+    <div class="batch-bar">
+      <span class="batch-label">已选 {{ selectedRows.length }} 项</span>
+      <el-button size="small" :disabled="selectedRows.length === 0" @click="batchStatus(1)">批量启用</el-button>
+      <el-button size="small" :disabled="selectedRows.length === 0" @click="batchStatus(0)">批量禁用</el-button>
     </div>
 
     <!-- 表格 -->
