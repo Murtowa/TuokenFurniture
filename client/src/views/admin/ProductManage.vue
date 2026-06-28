@@ -15,7 +15,7 @@
           <el-option label="全部分类" value="" />
           <el-option v-for="c in categories" :key="c.id" :label="c.name" :value="c.id" />
         </el-select>
-        <el-select v-model="statusFilter" placeholder="状态下拉" clearable class="toolbar-select" @change="fetchList">
+        <el-select v-model="statusFilter" placeholder="状态" clearable class="toolbar-select" @change="fetchList">
           <el-option label="全部状态" value="" />
           <el-option label="上架" value="1" />
           <el-option label="下架" value="0" />
@@ -41,14 +41,14 @@
       <el-table :data="list" stripe v-loading="loading" class="product-table" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="50" />
         <el-table-column prop="name" label="名称" min-width="160" show-overflow-tooltip />
-        <el-table-column prop="category_name" label="分类" width="100" />
-        <el-table-column prop="price" label="价格" width="130">
+        <el-table-column prop="category_name" label="分类" width="120" />
+        <el-table-column prop="price" label="价格" width="180">
           <template #default="{ row }">
             <span class="price-text">¥{{ row.price }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="stock" label="库存" width="90" />
-        <el-table-column prop="status" label="状态" width="90">
+        <el-table-column prop="stock" label="库存" width="120" />
+        <el-table-column prop="status" label="上下架" width="120">
           <template #default="{ row }">
             <el-switch
               :model-value="row.status === 1"
@@ -57,7 +57,7 @@
             />
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="160" fixed="right">
+        <el-table-column label="操作" width="200" fixed="right">
           <template #default="{ row }">
             <el-button type="primary" link size="small" class="edit-btn" @click="$router.push(`/admin/products/${row.id}/edit`)">
               编辑
@@ -81,6 +81,34 @@
       </template>
     </el-dialog>
 
+    <!-- 批量删除确认弹窗 -->
+    <el-dialog v-model="deleteDialogVisible" title="批量删除商品" width="480px" destroy-on-close>
+      <div class="delete-confirm-body">
+        <p class="delete-warning">确定删除以下 <b>{{ selectedRows.length }}</b> 个商品？此操作不可恢复。</p>
+        <div class="delete-category-tags">
+          <el-tag
+            v-for="cat in selectedCategories"
+            :key="cat.name"
+            type="warning"
+            size="small"
+            class="delete-cat-tag"
+          >
+            {{ cat.name }}（{{ cat.count }} 件）
+          </el-tag>
+        </div>
+        <div class="delete-product-list">
+          <div v-for="row in selectedRows" :key="row.id" class="delete-product-item">
+            <span class="delete-product-name">{{ row.name }}</span>
+            <span class="delete-product-cat">{{ row.category_name }}</span>
+          </div>
+        </div>
+      </div>
+      <template #footer>
+        <el-button @click="deleteDialogVisible = false">取消</el-button>
+        <el-button type="danger" :loading="deleting" @click="confirmBatchDelete">确认删除</el-button>
+      </template>
+    </el-dialog>
+
     <!-- 分页 -->
     <div class="pagination-wrap">
       <el-pagination
@@ -97,7 +125,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
 import * as adminApi from '@/api/admin'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -117,6 +145,19 @@ const selectedRows = ref([])
 const categoryDialogVisible = ref(false)
 const targetCategoryId = ref(null)
 const movingCategory = ref(false)
+
+// 批量删除
+const deleteDialogVisible = ref(false)
+const deleting = ref(false)
+
+const selectedCategories = computed(() => {
+  const map = {}
+  selectedRows.value.forEach(row => {
+    const name = row.category_name || '未分类'
+    map[name] = (map[name] || 0) + 1
+  })
+  return Object.entries(map).map(([name, count]) => ({ name, count }))
+})
 
 function handleSelectionChange(val) {
   selectedRows.value = val
@@ -173,15 +214,21 @@ async function batchStatus(status) {
   } catch { /* handled by interceptor */ }
 }
 
-async function batchDelete() {
-  await ElMessageBox.confirm(`确定删除选中的 ${selectedRows.value.length} 个商品？`, '批量删除', { type: 'warning' })
+function batchDelete() {
+  deleteDialogVisible.value = true
+}
+
+async function confirmBatchDelete() {
+  deleting.value = true
   try {
     const ids = selectedRows.value.map(r => r.id)
     const res = await adminApi.adminBatchDeleteProducts({ ids })
     ElMessage.success(res.message || '删除成功')
     selectedRows.value = []
+    deleteDialogVisible.value = false
     fetchList()
   } catch { /* handled by interceptor */ }
+  finally { deleting.value = false }
 }
 
 async function batchMoveCategory() {
@@ -384,6 +431,52 @@ onMounted(async () => {
   .el-pager li.is-active {
     background-color: #8B6914;
     border-color: #8B6914;
+  }
+}
+
+/* ====== 批量删除确认弹窗 ====== */
+.delete-confirm-body {
+  .delete-warning {
+    margin-bottom: 16px;
+    color: #2c2416;
+    font-size: 15px;
+    b { color: #c0392b; }
+  }
+
+  .delete-category-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .delete-cat-tag {
+    border-radius: 6px;
+  }
+
+  .delete-product-list {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #f0ece5;
+    border-radius: 8px;
+  }
+
+  .delete-product-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    font-size: 14px;
+    & + & { border-top: 1px solid #f0ece5; }
+
+    .delete-product-name {
+      color: #2c2416;
+      font-weight: 500;
+    }
+    .delete-product-cat {
+      color: #b8af9e;
+      font-size: 13px;
+    }
   }
 }
 
