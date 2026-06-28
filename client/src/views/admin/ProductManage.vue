@@ -40,15 +40,7 @@
     <div class="table-card">
       <el-table :data="list" stripe v-loading="loading" class="product-table" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="50" />
-        <el-table-column label="图片" width="100">
-          <template #default="{ row }">
-            <img v-if="row.main_image" :src="row.main_image.startsWith('/uploads') ? row.main_image : '/uploads/' + row.main_image" class="product-thumb" loading="lazy" />
-            <div v-else class="product-thumb-placeholder">
-              <el-icon :size="20"><PictureFilled /></el-icon>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="name" label="名称" min-width="140" show-overflow-tooltip />
+        <el-table-column prop="name" label="名称" min-width="160" show-overflow-tooltip />
         <el-table-column prop="category_name" label="分类" width="100" />
         <el-table-column prop="price" label="价格" width="130">
           <template #default="{ row }">
@@ -106,7 +98,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { Plus, PictureFilled } from '@element-plus/icons-vue'
+import { Plus } from '@element-plus/icons-vue'
 import * as adminApi from '@/api/admin'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
@@ -285,33 +277,6 @@ onMounted(async () => {
   border: 1px solid #f0ece5;
   box-shadow: 0 1px 4px rgba(44, 36, 22, 0.04);
   overflow: hidden;
-}
-
-/* ====== 商品缩略图 ====== */
-.product-thumb {
-  width: 56px;
-  height: 56px;
-  object-fit: cover;
-  border-radius: 8px;
-  border: 1px solid #f0ece5;
-  display: block;
-  transition: transform 0.2s ease;
-
-  &:hover {
-    transform: scale(1.1);
-  }
-}
-
-.product-thumb-placeholder {
-  width: 56px;
-  height: 56px;
-  border-radius: 8px;
-  background: #faf8f5;
-  border: 1px solid #f0ece5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #b8af9e;
 }
 
 /* ====== 价格 ====== */
