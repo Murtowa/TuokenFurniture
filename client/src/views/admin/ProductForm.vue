@@ -42,6 +42,7 @@
               <span class="upload-hint">点击上传</span>
             </div>
           </el-upload>
+          <span v-if="form.main_image" class="clear-main-btn" @click="form.main_image = ''">清除主图</span>
         </el-form-item>
 
         <el-form-item label="多图">
@@ -200,7 +201,10 @@ onMounted(async () => {
         name: `image-${i}`,
         url
       }))
-    } catch { /* ignore */ }
+    } catch {
+      ElMessage.error('加载商品信息失败')
+      router.push('/admin/products')
+    }
   }
 })
 </script>
@@ -264,6 +268,14 @@ onMounted(async () => {
       border-style: solid;
     }
   }
+}
+
+.clear-main-btn {
+  font-size: 12px;
+  color: #c0392b;
+  cursor: pointer;
+  margin-left: 12px;
+  &:hover { text-decoration: underline; }
 }
 
 .main-upload-placeholder {

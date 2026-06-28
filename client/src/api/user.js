@@ -24,6 +24,10 @@ export function deleteAddress(id) {
   return request.delete(`/user/addresses/${id}`)
 }
 
+export function changePassword(data) {
+  return request.put('/user/password', data)
+}
+
 export function uploadFile(file) {
   const fd = new FormData()
   fd.append('file', file)

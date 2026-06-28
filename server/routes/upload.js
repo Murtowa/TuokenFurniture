@@ -28,12 +28,16 @@ const upload = multer({
 
 router.use(auth)
 
-router.post('/', upload.single('file'), (req, res, next) => {
-  try {
-    if (!req.file) return res.status(400).json(require('../utils/response').fail('请选择文件'))
+router.post('/', (req, res, next) => {
+  upload.single('file')(req, res, (err) => {
+    if (err) {
+      if (err.code === 'LIMIT_FILE_SIZE') return res.status(400).json(fail('文件大小不能超过5MB'))
+      return res.status(400).json(fail(err.message || '上传失败'))
+    }
+    if (!req.file) return res.status(400).json(fail('请选择文件'))
     const url = `/uploads/${req.file.filename}`
     res.json(ok({ url, filename: req.file.filename }, '上传成功'))
-  } catch (err) { next(err) }
+  })
 })
 
 module.exports = router

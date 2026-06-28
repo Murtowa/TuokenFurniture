@@ -16,6 +16,10 @@ export function cancelOrder(id) {
   return request.put(`/orders/${id}/cancel`)
 }
 
+export function payOrder(id) {
+  return request.put(`/orders/${id}/pay`)
+}
+
 export function confirmOrder(id) {
   return request.put(`/orders/${id}/complete`)
 }

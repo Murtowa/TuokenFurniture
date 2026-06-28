@@ -60,3 +60,25 @@ export function adminGetUsers(params) {
 export function adminUpdateUserStatus(id, data) {
   return request.put(`/admin/users/${id}/status`, data)
 }
+
+export function adminBatchUserStatus(data) {
+  return request.put('/admin/users/batch-status', data)
+}
+
+// Products batch
+export function adminBatchProductStatus(data) {
+  return request.put('/admin/products/batch-status', data)
+}
+
+export function adminBatchProductCategory(data) {
+  return request.put('/admin/products/batch-category', data)
+}
+
+export function adminBatchDeleteProducts(data) {
+  return request.post('/admin/products/batch-delete', data)
+}
+
+// Categories batch
+export function adminBatchDeleteCategories(data) {
+  return request.post('/admin/categories/batch-delete', data)
+}

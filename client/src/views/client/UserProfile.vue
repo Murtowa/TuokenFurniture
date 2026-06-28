@@ -20,6 +20,22 @@
                 <el-button type="primary" :loading="profileSaving" @click="saveProfile">保存修改</el-button>
               </el-form-item>
             </el-form>
+            <el-divider />
+            <h4 style="margin-bottom:16px;color:#2c2416;">修改密码</h4>
+            <el-form ref="passwordFormRef" :model="passwordForm" :rules="passwordRules" label-width="80px" class="profile-form">
+              <el-form-item label="旧密码" prop="oldPassword">
+                <el-input v-model="passwordForm.oldPassword" type="password" placeholder="请输入旧密码" show-password />
+              </el-form-item>
+              <el-form-item label="新密码" prop="newPassword">
+                <el-input v-model="passwordForm.newPassword" type="password" placeholder="请输入新密码（至少6位）" show-password />
+              </el-form-item>
+              <el-form-item label="确认密码" prop="confirmPassword">
+                <el-input v-model="passwordForm.confirmPassword" type="password" placeholder="请再次输入新密码" show-password />
+              </el-form-item>
+              <el-form-item>
+                <el-button type="primary" :loading="passwordSaving" @click="savePassword">保存新密码</el-button>
+              </el-form-item>
+            </el-form>
           </div>
         </el-tab-pane>
 
@@ -141,6 +157,57 @@ async function saveProfile() {
     ElMessage.error('更新失败')
   } finally {
     profileSaving.value = false
+  }
+}
+
+// ---- 修改密码 ----
+const passwordFormRef = ref(null)
+const passwordSaving = ref(false)
+const passwordForm = reactive({
+  oldPassword: '',
+  newPassword: '',
+  confirmPassword: ''
+})
+
+const validateConfirmPassword = (_rule, value, callback) => {
+  if (value !== passwordForm.newPassword) {
+    callback(new Error('两次输入的密码不一致'))
+  } else {
+    callback()
+  }
+}
+
+const passwordRules = {
+  oldPassword: [{ required: true, message: '请输入旧密码', trigger: 'blur' }],
+  newPassword: [
+    { required: true, message: '请输入新密码', trigger: 'blur' },
+    { min: 6, message: '密码长度至少6位', trigger: 'blur' }
+  ],
+  confirmPassword: [
+    { required: true, message: '请确认新密码', trigger: 'blur' },
+    { validator: validateConfirmPassword, trigger: 'blur' }
+  ]
+}
+
+async function savePassword() {
+  const valid = await passwordFormRef.value.validate().catch(() => false)
+  if (!valid) return
+  passwordSaving.value = true
+  try {
+    await userApi.changePassword({
+      oldPassword: passwordForm.oldPassword,
+      newPassword: passwordForm.newPassword
+    })
+    ElMessage.success('密码已更新')
+    passwordForm.oldPassword = ''
+    passwordForm.newPassword = ''
+    passwordForm.confirmPassword = ''
+    passwordFormRef.value.resetFields()
+  } catch (err) {
+    const msg = err?.response?.data?.message || '修改失败'
+    ElMessage.error(msg)
+  } finally {
+    passwordSaving.value = false
   }
 }
 

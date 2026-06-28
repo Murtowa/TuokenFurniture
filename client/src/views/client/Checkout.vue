@@ -25,7 +25,7 @@
               @click="selectedAddressId = addr.id"
             >
               <div class="addr-header">
-                <span class="addr-name">{{ addr.consignee }}</span>
+                <span class="addr-name">{{ addr.receiver_name }}</span>
                 <span class="addr-phone">{{ addr.phone }}</span>
                 <el-tag v-if="addr.isDefault" size="small" class="default-tag">默认</el-tag>
               </div>
@@ -41,7 +41,7 @@
           </div>
           <div class="items-list">
             <div v-for="item in cartItems" :key="item.id" class="order-item">
-              <img :src="'/uploads/' + (item.main_image || item.image)" alt="" class="item-img" />
+              <img :src="(item.main_image || item.image || '').startsWith('/uploads') ? (item.main_image || item.image) : '/uploads/' + (item.main_image || item.image)" alt="" class="item-img" loading="lazy" />
               <div class="item-info">
                 <div class="item-name">{{ item.name }}</div>
                 <div class="item-price-qty">
@@ -87,8 +87,8 @@
     <!-- 新增地址弹窗 -->
     <el-dialog v-model="addressDialogVisible" :title="editingAddress ? '编辑地址' : '新增地址'" width="520px" destroy-on-close>
       <el-form ref="addrFormRef" :model="addrForm" :rules="addrRules" label-width="80px">
-        <el-form-item label="收货人" prop="consignee">
-          <el-input v-model="addrForm.consignee" placeholder="请输入收货人姓名" />
+        <el-form-item label="收货人" prop="receiver_name">
+          <el-input v-model="addrForm.receiver_name" placeholder="请输入收货人姓名" />
         </el-form-item>
         <el-form-item label="手机号" prop="phone">
           <el-input v-model="addrForm.phone" placeholder="请输入手机号" />
@@ -118,6 +118,24 @@
         <el-button type="primary" :loading="savingAddr" @click="saveAddress">保存</el-button>
       </template>
     </el-dialog>
+
+    <!-- 支付确认弹窗 -->
+    <el-dialog :model-value="!!pendingPayment" @update:model-value="val => { if (!val) pendingPayment = null }" title="确认支付" width="400px" :close-on-click-modal="false" destroy-on-close>
+      <div v-if="pendingPayment" class="pay-dialog-body">
+        <div class="pay-row">
+          <span>订单号</span>
+          <span class="pay-order-no">{{ pendingPayment.orderNo }}</span>
+        </div>
+        <div class="pay-row">
+          <span>应付金额</span>
+          <span class="pay-amount">&yen;{{ pendingPayment.totalAmount }}</span>
+        </div>
+      </div>
+      <template #footer>
+        <el-button @click="handleSkipPay">稍后支付</el-button>
+        <el-button type="primary" :loading="paying" @click="handleConfirmPay">确认支付</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -127,6 +145,7 @@ import { useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
 import { useOrderStore } from '@/stores/order'
 import * as userApi from '@/api/user'
+import * as orderApi from '@/api/order'
 import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 
@@ -134,12 +153,20 @@ const router = useRouter()
 const cartStore = useCartStore()
 const orderStore = useOrderStore()
 
-const cartItems = computed(() => cartStore.items)
+const cartItems = computed(() => {
+  if (!cartStore.selectedIds || cartStore.selectedIds.length === 0) {
+    return cartStore.items
+  }
+  const idSet = new Set(cartStore.selectedIds)
+  return cartStore.items.filter(item => idSet.has(item.id) || idSet.has(item.product_id))
+})
 const totalPrice = computed(() => cartItems.value.reduce((sum, i) => sum + i.price * i.quantity, 0))
 
 const remark = ref('')
 const submitting = ref(false)
 const loading = ref(false)
+const pendingPayment = ref(null)
+const paying = ref(false)
 
 // 地址相关
 const addresses = ref([])
@@ -151,7 +178,7 @@ const editingAddress = ref(null)
 const addrFormRef = ref(null)
 
 const addrForm = reactive({
-  consignee: '',
+  receiver_name: '',
   phone: '',
   province: '',
   city: '',
@@ -161,7 +188,7 @@ const addrForm = reactive({
 })
 
 const addrRules = {
-  consignee: [{ required: true, message: '请输入收货人', trigger: 'blur' }],
+  receiver_name: [{ required: true, message: '请输入收货人', trigger: 'blur' }],
   phone: [
     { required: true, message: '请输入手机号', trigger: 'blur' },
     { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
@@ -188,7 +215,7 @@ function openAddressDialog(addr = null) {
   editingAddress.value = addr
   if (addr) {
     Object.assign(addrForm, {
-      consignee: addr.consignee,
+      receiver_name: addr.receiver_name,
       phone: addr.phone,
       province: addr.province,
       city: addr.city,
@@ -197,7 +224,7 @@ function openAddressDialog(addr = null) {
       isDefault: !!addr.isDefault
     })
   } else {
-    Object.assign(addrForm, { consignee: '', phone: '', province: '', city: '', district: '', detail: '', isDefault: false })
+    Object.assign(addrForm, { receiver_name: '', phone: '', province: '', city: '', district: '', detail: '', isDefault: false })
   }
   addressDialogVisible.value = true
 }
@@ -235,19 +262,43 @@ async function submitOrder() {
   }))
   submitting.value = true
   try {
-    await orderStore.placeOrder({
+    const data = await orderStore.placeOrder({
       addressId: selectedAddressId.value,
       items,
       remark: remark.value
     })
     ElMessage.success('订单提交成功')
-    router.push('/user/orders')
+    cartStore.fetch()
+    pendingPayment.value = {
+      orderId: data.orderId,
+      orderNo: data.orderNo,
+      totalAmount: totalPrice.value.toFixed(2)
+    }
   } catch (err) {
     const msg = err?.response?.data?.message || '提交订单失败'
     ElMessage.error(msg)
   } finally {
     submitting.value = false
   }
+}
+
+async function handleConfirmPay() {
+  paying.value = true
+  try {
+    await orderApi.payOrder(pendingPayment.value.orderId)
+    ElMessage.success('支付成功')
+    pendingPayment.value = null
+    router.push('/user/orders')
+  } catch {
+    ElMessage.error('支付失败')
+  } finally {
+    paying.value = false
+  }
+}
+
+function handleSkipPay() {
+  pendingPayment.value = null
+  router.push('/user/orders')
 }
 
 onMounted(async () => {
@@ -457,5 +508,19 @@ onMounted(async () => {
 
 :deep(.el-dialog) {
   border-radius: 12px;
+}
+
+.pay-dialog-body {
+  text-align: center;
+  .pay-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    font-size: 15px;
+    color: #8c8170;
+    & + .pay-row { border-top: 1px solid #f0ece5; }
+  }
+  .pay-order-no { color: #2c2416; font-weight: 500; }
+  .pay-amount { color: #c0392b; font-weight: 700; font-size: 20px; }
 }
 </style>

@@ -12,9 +12,17 @@
       />
     </div>
 
+    <!-- 批量操作栏 -->
+    <div v-if="selectedRows.length > 0" class="batch-bar">
+      <span class="batch-label">当前页已选 {{ selectedRows.length }} 项</span>
+      <el-button size="small" @click="batchStatus(1)">批量启用</el-button>
+      <el-button size="small" @click="batchStatus(0)">批量禁用</el-button>
+    </div>
+
     <!-- 表格 -->
     <div class="table-card">
-      <el-table :data="list" stripe v-loading="loading">
+      <el-table :data="list" stripe v-loading="loading" @selection-change="handleSelectionChange">
+        <el-table-column type="selection" width="50" />
         <el-table-column prop="id" label="ID" width="80" />
         <el-table-column label="用户" min-width="160">
           <template #default="{ row }">
@@ -56,6 +64,9 @@
             </el-button>
           </template>
         </el-table-column>
+        <template #empty>
+          <el-empty description="暂无用户数据" :image-size="80" />
+        </template>
       </el-table>
     </div>
 
@@ -85,6 +96,11 @@ const loading = ref(false)
 const page = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
+const selectedRows = ref([])
+
+function handleSelectionChange(val) {
+  selectedRows.value = val
+}
 
 async function fetchList() {
   loading.value = true
@@ -114,12 +130,42 @@ async function handleToggle(row) {
   }
 }
 
+async function batchStatus(status) {
+  const ids = selectedRows.value.map(r => r.id)
+  try {
+    const res = await adminApi.adminBatchUserStatus({ ids, status })
+    ElMessage.success(res.message || '操作成功')
+    selectedRows.value = []
+    fetchList()
+  } catch {
+    // handled by interceptor
+  }
+}
+
 onMounted(fetchList)
 </script>
 
 <style lang="scss" scoped>
 .user-manage {
   font-family: system-ui, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+/* ===== 批量操作栏 ===== */
+.batch-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fdf6e8;
+  border: 1px solid #f0d78c;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+
+.batch-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #8B6914;
 }
 
 /* ===== 搜索工具栏 ===== */

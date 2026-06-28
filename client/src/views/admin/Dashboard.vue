@@ -1,5 +1,18 @@
 <template>
   <div class="dashboard">
+    <!-- 错误状态 -->
+    <el-result
+      v-if="loadError"
+      icon="error"
+      title="数据加载失败"
+      sub-title="请检查网络连接后刷新页面重试"
+    >
+      <template #extra>
+        <el-button type="primary" @click="window.location.reload()">刷新页面</el-button>
+      </template>
+    </el-result>
+
+    <template v-else>
     <!-- 数据概览标题 -->
     <div class="section-title">数据概览</div>
 
@@ -74,6 +87,7 @@
         <el-table-column prop="createdAt" label="时间" min-width="180" />
       </el-table>
     </div>
+    </template>
   </div>
 </template>
 
@@ -92,6 +106,7 @@ const counts = reactive({ products: 0, orders: 0, revenue: 0, users: 0 })
 const orderTrend = ref([])
 const categoryDistribution = ref([])
 const recentOrders = ref([])
+const loadError = ref(false)
 
 function statusLabel(s) {
   const map = { pending: '待支付', paid: '已支付', shipped: '已发货', completed: '已完成', cancelled: '已取消' }
@@ -205,7 +220,7 @@ onMounted(async () => {
     recentOrders.value = data.recentOrders || []
     updateCharts()
   } catch {
-    // handled by interceptor
+    loadError.value = true
   }
 })
 

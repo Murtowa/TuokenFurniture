@@ -1,5 +1,6 @@
 const router = require('express').Router()
 const { auth } = require('../middleware/auth')
+const bcrypt = require('bcryptjs')
 const { ok, fail } = require('../utils/response')
 const userModel = require('../models/user')
 const addressModel = require('../models/address')
@@ -58,6 +59,25 @@ router.delete('/addresses/:id', async (req, res, next) => {
     await addressModel.delete(req.params.id, req.user.userId)
     const addresses = await addressModel.findByUser(req.user.userId)
     res.json(ok(addresses, '删除成功'))
+  } catch (err) { next(err) }
+})
+
+router.put('/password', async (req, res, next) => {
+  try {
+    const { oldPassword, newPassword } = req.body
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json(fail('旧密码和新密码不能为空'))
+    }
+    if (newPassword.length < 6) {
+      return res.status(400).json(fail('新密码长度至少6位'))
+    }
+    const user = await userModel.findByIdWithPassword(req.user.userId)
+    if (!user) return res.status(404).json(fail('用户不存在', 404))
+    const valid = await bcrypt.compare(oldPassword, user.password)
+    if (!valid) return res.status(400).json(fail('旧密码不正确'))
+    const hash = await bcrypt.hash(newPassword, 10)
+    await userModel.update(req.user.userId, { password: hash })
+    res.json(ok(null, '密码已更新'))
   } catch (err) { next(err) }
 })
 

@@ -6,6 +6,7 @@ import { useAuthStore } from './auth'
 
 export const useCartStore = defineStore('cart', () => {
   const items = ref([])
+  const selectedIds = ref([])
 
   function loadLocal() {
     const raw = localStorage.getItem('cart_local')
@@ -83,5 +84,5 @@ export const useCartStore = defineStore('cart', () => {
     localStorage.removeItem('cart_local')
   }
 
-  return { items, fetch, add, updateQuantity, remove, mergeLocal, clearLocal, loadLocal, saveLocal }
+  return { items, selectedIds, fetch, add, updateQuantity, remove, mergeLocal, clearLocal, loadLocal, saveLocal }
 })

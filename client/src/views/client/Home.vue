@@ -30,7 +30,7 @@
             @click="goToCategory(cat.id)"
           >
             <div class="category-icon">
-              <img v-if="cat.image" :src="`/uploads/${cat.image}`" :alt="cat.name" />
+              <img v-if="cat.icon" :src="`/uploads/${cat.icon}`" :alt="cat.name" loading="lazy" />
               <el-icon v-else :size="36"><Folder /></el-icon>
             </div>
             <span class="category-name">{{ cat.name }}</span>
@@ -56,7 +56,7 @@
             @click="goToProduct(product.id)"
           >
             <div class="product-image">
-              <img :src="`/uploads/${product.main_image}`" :alt="product.name" />
+              <img :src="`/uploads/${product.main_image}`" :alt="product.name" loading="lazy" />
               <div class="product-actions">
                 <el-button
                   type="primary"

@@ -6,9 +6,16 @@
       <el-button type="primary" class="add-btn" @click="openDialog()">+ 新增分类</el-button>
     </div>
 
+    <!-- 批量操作栏 -->
+    <div v-if="selectedRows.length > 0" class="batch-bar">
+      <span class="batch-label">当前页已选 {{ selectedRows.length }} 项</span>
+      <el-button size="small" type="danger" @click="batchDelete">批量删除</el-button>
+    </div>
+
     <!-- 表格 -->
     <div class="table-card">
-      <el-table :data="list" stripe v-loading="loading">
+      <el-table :data="list" stripe v-loading="loading" @selection-change="handleSelectionChange">
+        <el-table-column type="selection" width="50" />
         <el-table-column prop="id" label="ID" width="80" />
         <el-table-column prop="name" label="分类名称" min-width="180" />
         <el-table-column label="父级分类" width="160">
@@ -67,6 +74,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 
 const list = ref([])
 const loading = ref(false)
+const selectedRows = ref([])
 const dialogVisible = ref(false)
 const isEdit = ref(false)
 const editId = ref(null)
@@ -79,8 +87,19 @@ const form = ref({
   sort_order: 0
 })
 
+const validateUniqueName = (_rule, value, callback) => {
+  if (!value) return callback()
+  const name = value.trim().toLowerCase()
+  const dup = list.value.find(c => c.name.trim().toLowerCase() === name && c.id !== editId.value)
+  if (dup) return callback(new Error('分类名称已存在'))
+  callback()
+}
+
 const rules = {
-  name: [{ required: true, message: '请输入分类名称', trigger: 'blur' }]
+  name: [
+    { required: true, message: '请输入分类名称', trigger: 'blur' },
+    { validator: validateUniqueName, trigger: 'blur' }
+  ]
 }
 
 const parentOptions = computed(() => {
@@ -92,6 +111,10 @@ function parentName(pid) {
   if (!pid) return ''
   const found = list.value.find(c => c.id === pid)
   return found?.name || ''
+}
+
+function handleSelectionChange(val) {
+  selectedRows.value = val
 }
 
 async function fetchList() {
@@ -157,12 +180,41 @@ async function handleDelete(row) {
   }
 }
 
+async function batchDelete() {
+  await ElMessageBox.confirm(`确定删除选中的 ${selectedRows.value.length} 个分类？`, '批量删除', { type: 'warning' })
+  try {
+    const ids = selectedRows.value.map(r => r.id)
+    const res = await adminApi.adminBatchDeleteCategories({ ids })
+    ElMessage.success(res.message || '删除成功')
+    selectedRows.value = []
+    fetchList()
+  } catch { /* handled by interceptor */ }
+}
+
 onMounted(fetchList)
 </script>
 
 <style lang="scss" scoped>
 .category-manage {
   font-family: system-ui, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+/* ===== 批量操作栏 ===== */
+.batch-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fdf6e8;
+  border: 1px solid #f0d78c;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+
+.batch-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #8B6914;
 }
 
 /* ===== 顶部工具栏 ===== */

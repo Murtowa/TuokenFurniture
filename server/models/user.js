@@ -23,6 +23,13 @@ const userModel = {
     return rows[0] || null
   },
 
+  async findByIdWithPassword(id) {
+    const [rows] = await pool.execute(
+      'SELECT * FROM users WHERE id = ?', [id]
+    )
+    return rows[0] || null
+  },
+
   async update(id, fields) {
     const keys = Object.keys(fields)
     const setClause = keys.map(k => `${k} = ?`).join(', ')
@@ -50,6 +57,16 @@ const userModel = {
 
   async updateStatus(id, status) {
     await pool.execute('UPDATE users SET status = ? WHERE id = ?', [status, id])
+  },
+
+  async batchUpdateStatus(ids, status) {
+    if (!ids || ids.length === 0) return { affected: 0, skipped: 0, total: 0 }
+    const placeholders = ids.map(() => '?').join(',')
+    const [result] = await pool.execute(
+      `UPDATE users SET status = ? WHERE id IN (${placeholders}) AND status != ?`,
+      [status, ...ids, status]
+    )
+    return { affected: result.affectedRows, skipped: ids.length - result.affectedRows, total: ids.length }
   }
 }
 

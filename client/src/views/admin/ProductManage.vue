@@ -27,12 +27,22 @@
       </el-button>
     </div>
 
+    <!-- 批量操作栏 -->
+    <div v-if="selectedRows.length > 0" class="batch-bar">
+      <span class="batch-label">当前页已选 {{ selectedRows.length }} 项</span>
+      <el-button size="small" @click="batchStatus(1)">批量上架</el-button>
+      <el-button size="small" @click="batchStatus(0)">批量下架</el-button>
+      <el-button size="small" @click="categoryDialogVisible = true">移动到分类</el-button>
+      <el-button size="small" type="danger" @click="batchDelete">批量删除</el-button>
+    </div>
+
     <!-- 表格 -->
     <div class="table-card">
-      <el-table :data="list" stripe v-loading="loading" class="product-table">
+      <el-table :data="list" stripe v-loading="loading" class="product-table" @selection-change="handleSelectionChange">
+        <el-table-column type="selection" width="50" />
         <el-table-column label="图片" width="100">
           <template #default="{ row }">
-            <img v-if="row.main_image" :src="'/uploads/' + row.main_image" class="product-thumb" />
+            <img v-if="row.main_image" :src="row.main_image.startsWith('/uploads') ? row.main_image : '/uploads/' + row.main_image" class="product-thumb" loading="lazy" />
             <div v-else class="product-thumb-placeholder">
               <el-icon :size="20"><PictureFilled /></el-icon>
             </div>
@@ -68,6 +78,17 @@
       </el-table>
     </div>
 
+    <!-- 批量移动分类弹窗 -->
+    <el-dialog v-model="categoryDialogVisible" title="移动到分类" width="360px" destroy-on-close>
+      <el-select v-model="targetCategoryId" placeholder="请选择目标分类" style="width:100%;">
+        <el-option v-for="c in categories" :key="c.id" :label="c.name" :value="c.id" />
+      </el-select>
+      <template #footer>
+        <el-button @click="categoryDialogVisible = false">取消</el-button>
+        <el-button type="primary" :loading="movingCategory" @click="batchMoveCategory">确定</el-button>
+      </template>
+    </el-dialog>
+
     <!-- 分页 -->
     <div class="pagination-wrap">
       <el-pagination
@@ -98,6 +119,16 @@ const loading = ref(false)
 const page = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
+const selectedRows = ref([])
+
+// 批量移动分类
+const categoryDialogVisible = ref(false)
+const targetCategoryId = ref(null)
+const movingCategory = ref(false)
+
+function handleSelectionChange(val) {
+  selectedRows.value = val
+}
 
 async function fetchList() {
   loading.value = true
@@ -106,7 +137,7 @@ async function fetchList() {
       page: page.value,
       pageSize: pageSize.value,
       keyword: keyword.value || undefined,
-      category_id: categoryId.value || undefined,
+      categoryId: categoryId.value || undefined,
       status: statusFilter.value !== '' ? statusFilter.value : undefined
     })
     list.value = data.list || []
@@ -138,6 +169,45 @@ async function handleDelete(row) {
   } catch {
     // handled by interceptor
   }
+}
+
+async function batchStatus(status) {
+  const ids = selectedRows.value.map(r => r.id)
+  try {
+    const res = await adminApi.adminBatchProductStatus({ ids, status })
+    ElMessage.success(res.message || '操作成功')
+    selectedRows.value = []
+    fetchList()
+  } catch { /* handled by interceptor */ }
+}
+
+async function batchDelete() {
+  await ElMessageBox.confirm(`确定删除选中的 ${selectedRows.value.length} 个商品？`, '批量删除', { type: 'warning' })
+  try {
+    const ids = selectedRows.value.map(r => r.id)
+    const res = await adminApi.adminBatchDeleteProducts({ ids })
+    ElMessage.success(res.message || '删除成功')
+    selectedRows.value = []
+    fetchList()
+  } catch { /* handled by interceptor */ }
+}
+
+async function batchMoveCategory() {
+  if (!targetCategoryId.value) {
+    ElMessage.warning('请选择目标分类')
+    return
+  }
+  movingCategory.value = true
+  try {
+    const ids = selectedRows.value.map(r => r.id)
+    const res = await adminApi.adminBatchProductCategory({ ids, categoryId: targetCategoryId.value })
+    ElMessage.success(res.message || '移动成功')
+    selectedRows.value = []
+    categoryDialogVisible.value = false
+    targetCategoryId.value = null
+    fetchList()
+  } catch { /* handled by interceptor */ }
+  finally { movingCategory.value = false }
 }
 
 onMounted(async () => {
@@ -187,6 +257,24 @@ onMounted(async () => {
 
 .add-btn-icon {
   margin-right: 6px;
+}
+
+/* ====== 批量操作栏 ====== */
+.batch-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fdf6e8;
+  border: 1px solid #f0d78c;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+
+.batch-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #8B6914;
 }
 
 /* ====== 表格容器 ====== */

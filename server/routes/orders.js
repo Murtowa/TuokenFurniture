@@ -1,5 +1,6 @@
 const router = require('express').Router()
 const { auth } = require('../middleware/auth')
+const pool = require('../config/db')
 const { ok, fail } = require('../utils/response')
 const orderModel = require('../models/order')
 const productModel = require('../models/product')
@@ -86,6 +87,19 @@ router.put('/:id/complete', async (req, res, next) => {
   try {
     await orderModel.confirmReceipt(req.params.id, req.user.userId)
     res.json(ok(null, '已确认收货'))
+  } catch (err) { next(err) }
+})
+
+router.put('/:id/pay', async (req, res, next) => {
+  try {
+    const order = await orderModel.findById(req.params.id, req.user.userId)
+    if (!order) return res.status(404).json(fail('订单不存在', 404))
+    if (order.status !== 'pending') {
+      return res.status(400).json(fail('订单状态不允许支付'))
+    }
+
+    await pool.execute("UPDATE orders SET status = 'paid', paid_at = NOW() WHERE id = ?", [req.params.id])
+    res.json(ok(null, '支付成功'))
   } catch (err) { next(err) }
 })
 

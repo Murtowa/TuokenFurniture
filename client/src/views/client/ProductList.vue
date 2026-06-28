@@ -90,7 +90,7 @@
               @click="goToDetail(product.id)"
             >
               <div class="card-image">
-                <img :src="`/uploads/${product.main_image}`" :alt="product.name" />
+                <img :src="`/uploads/${product.main_image}`" :alt="product.name" loading="lazy" />
                 <div class="card-overlay">
                   <el-button
                     type="primary"

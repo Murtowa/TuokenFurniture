@@ -17,24 +17,21 @@
                 </el-tag>
               </div>
               <div class="order-body">
-                <div class="order-products" v-if="order.items && order.items.length > 0">
-                  <div v-for="item in order.items.slice(0, 3)" :key="item.id" class="order-product-item">
-                    <img :src="'/uploads/' + (item.main_image || item.product_snapshot?.main_image)" alt="" class="order-product-img" />
-                    <div class="order-product-info">
-                      <span class="order-product-name">{{ item.name }}</span>
-                      <span class="order-product-meta">&yen;{{ item.price }} x{{ item.quantity }}</span>
-                    </div>
-                  </div>
-                  <span v-if="order.items.length > 3" class="more-items">
-                    等{{ order.items.length }}件商品
-                  </span>
-                </div>
                 <div class="order-meta">
                   <span class="order-amount">&yen;{{ order.totalAmount || order.total_amount }}</span>
                 </div>
               </div>
               <div class="order-footer">
                 <el-button size="small" @click="showOrderDetail(order)">查看详情</el-button>
+                <el-button
+                  v-if="order.status === 'pending'"
+                  size="small"
+                  type="primary"
+                  :loading="payingId === order.id"
+                  @click="handlePay(order)"
+                >
+                  去支付
+                </el-button>
                 <el-button
                   v-if="order.status === 'pending'"
                   size="small"
@@ -92,7 +89,7 @@
         <div v-if="currentOrder.items && currentOrder.items.length > 0" class="detail-section">
           <h4>商品列表</h4>
           <div v-for="item in currentOrder.items" :key="item.id" class="detail-item">
-            <img :src="'/uploads/' + (item.main_image || item.product_snapshot?.main_image)" alt="" class="detail-item-img" />
+            <img :src="((item.main_image || item.product_snapshot?.main_image || '').startsWith('/uploads') ? (item.main_image || item.product_snapshot?.main_image) : '/uploads/' + (item.main_image || item.product_snapshot?.main_image))" alt="" class="detail-item-img" loading="lazy" />
             <div class="detail-item-info">
               <div class="detail-item-name">{{ item.name }}</div>
               <div class="detail-item-meta">
@@ -125,6 +122,7 @@ const ordersStore = useOrderStore()
 
 const currentPage = ref(1)
 const cancellingId = ref(null)
+const payingId = ref(null)
 const detailVisible = ref(false)
 const currentOrder = ref(null)
 
@@ -159,6 +157,20 @@ async function handleCancel(order) {
     ElMessage.error('取消失败')
   } finally {
     cancellingId.value = null
+  }
+}
+
+async function handlePay(order) {
+  payingId.value = order.id
+  try {
+    await orderApi.payOrder(order.id)
+    ElMessage.success('支付成功')
+    order.status = 'paid'
+    await ordersStore.fetchOrders(currentPage.value)
+  } catch {
+    ElMessage.error('支付失败')
+  } finally {
+    payingId.value = null
   }
 }
 

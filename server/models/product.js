@@ -68,6 +68,36 @@ const productModel = {
     await pool.execute('DELETE FROM products WHERE id = ?', [id])
   },
 
+  async batchUpdateStatus(ids, status) {
+    if (!ids || ids.length === 0) return { affected: 0, skipped: 0, total: 0 }
+    const placeholders = ids.map(() => '?').join(',')
+    const [result] = await pool.execute(
+      `UPDATE products SET status = ? WHERE id IN (${placeholders}) AND status != ?`,
+      [status, ...ids, status]
+    )
+    return { affected: result.affectedRows, skipped: ids.length - result.affectedRows, total: ids.length }
+  },
+
+  async batchUpdateCategory(ids, categoryId) {
+    if (!ids || ids.length === 0) return { affected: 0, total: 0 }
+    const placeholders = ids.map(() => '?').join(',')
+    const [result] = await pool.execute(
+      `UPDATE products SET category_id = ? WHERE id IN (${placeholders})`,
+      [categoryId, ...ids]
+    )
+    return { affected: result.affectedRows, total: ids.length }
+  },
+
+  async batchDelete(ids) {
+    if (!ids || ids.length === 0) return { affected: 0, total: 0 }
+    const placeholders = ids.map(() => '?').join(',')
+    const [result] = await pool.execute(
+      `DELETE FROM products WHERE id IN (${placeholders})`,
+      ids
+    )
+    return { affected: result.affectedRows, total: ids.length }
+  },
+
   async adminFindAll({ page = 1, pageSize = 20, keyword, categoryId, status }) {
     let where = 'WHERE 1=1'
     const params = []

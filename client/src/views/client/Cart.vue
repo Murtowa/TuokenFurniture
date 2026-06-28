@@ -34,6 +34,7 @@
                     <img
                       :src="`/uploads/${row.main_image || row.image}`"
                       class="product-thumb"
+                      loading="lazy"
                     />
                     <div class="product-info">
                       <p class="product-name">{{ row.name || row.product_name }}</p>
@@ -149,13 +150,19 @@ const totalPrice = computed(() => {
     .toFixed(2)
 })
 
+function syncSelectedToStore() {
+  store.selectedIds = selectedItems.value.map(row => row.id || row.product_id).filter(Boolean)
+}
+
 function handleSelectionChange(val) {
   selectedItems.value = val
   checkAll.value = val.length === store.items.length
+  syncSelectedToStore()
 }
 
 function handleCheckAllChange(val) {
   selectedItems.value = val ? [...store.items] : []
+  syncSelectedToStore()
 }
 
 async function handleQuantityChange(row, index) {
@@ -187,7 +194,7 @@ async function handleRemove(row, index) {
 function handleCheckout() {
   if (!auth.isLoggedIn) {
     ElMessage.warning('请先登录后再结算')
-    router.push('/login')
+    router.push('/login?redirect=/checkout')
     return
   }
   if (selectedItems.value.length === 0) {
